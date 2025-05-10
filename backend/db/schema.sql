@@ -7,6 +7,8 @@ CREATE TABLE users (
   email VARCHAR(100) NOT NULL UNIQUE,
   password VARCHAR(100) NOT NULL,
   role ENUM('student', 'admin') DEFAULT 'student',
+  reset_token VARCHAR(100),
+  reset_token_expiry DATETIME,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -34,9 +36,10 @@ CREATE TABLE appointments (
   date DATE NOT NULL,
   time_slot_id INT NOT NULL,
   reason TEXT NOT NULL,
-  status ENUM('pending', 'approved', 'rejected', 'completed') DEFAULT 'pending',
+  status ENUM('pending', 'approved', 'rejected', 'completed', 'cancelled') DEFAULT 'pending',
   admin_notes TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  cancelled_at DATETIME,
   FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
   FOREIGN KEY (time_slot_id) REFERENCES time_slots(id)
 );

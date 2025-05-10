@@ -3,7 +3,11 @@ const router = express.Router();
 const { check, validationResult } = require('express-validator');
 const pool = require('../db');
 const auth = require('../middleware/auth');
-const { sendAppointmentConfirmation, sendStatusUpdate } = require('../utils/emailService');
+const {
+  sendAppointmentConfirmation,
+  sendStatusUpdate,
+  sendAppointmentCancellationEmail
+} = require('../utils/emailService');
 
 // @route   GET api/appointments
 // @desc    Get all appointments (admin) or user's appointments (student)
@@ -12,7 +16,7 @@ router.get('/', auth, async (req, res) => {
   try {
     let query;
     let params = [];
-    
+
     if (req.user.role === 'admin') {
       // Admins can see all appointments
       query = `
@@ -35,7 +39,7 @@ router.get('/', auth, async (req, res) => {
       `;
       params = [req.user.id];
     }
-    
+
     const [rows] = await pool.query(query, params);
     res.json(rows);
   } catch (error) {
@@ -74,11 +78,11 @@ router.post(
         'SELECT id FROM students WHERE user_id = ?',
         [req.user.id]
       );
-      
+
       if (students.length === 0) {
         return res.status(404).json({ msg: 'Student profile not found' });
       }
-      
+
       const studentId = students[0].id;
 
       // Check if time slot exists and is available
@@ -86,7 +90,7 @@ router.post(
         'SELECT * FROM time_slots WHERE id = ? AND is_available = TRUE',
         [time_slot_id]
       );
-      
+
       if (timeSlots.length === 0) {
         return res.status(400).json({ msg: 'Time slot not available' });
       }
@@ -95,7 +99,7 @@ router.post(
       const selectedDate = new Date(date);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
+
       if (selectedDate < today) {
         return res.status(400).json({ msg: 'Cannot book appointments in the past' });
       }
@@ -111,7 +115,7 @@ router.post(
         'SELECT COUNT(*) as count FROM appointments WHERE date = ? AND time_slot_id = ?',
         [date, time_slot_id]
       );
-      
+
       if (existingAppointments[0].count >= timeSlots[0].max_appointments) {
         return res.status(400).json({ msg: 'Time slot already fully booked for this date' });
       }
@@ -135,7 +139,7 @@ router.post(
         reason,
         status: 'pending'
       };
-      
+
       await sendAppointmentConfirmation(users[0].email, appointmentDetails);
 
       res.status(201).json({
@@ -192,11 +196,11 @@ router.put(
          WHERE a.id = ?`,
         [req.params.id]
       );
-      
+
       if (appointments.length === 0) {
         return res.status(404).json({ msg: 'Appointment not found' });
       }
-      
+
       const appointment = appointments[0];
 
       // Send status update email
@@ -205,7 +209,7 @@ router.put(
         time: `${appointment.start_time} - ${appointment.end_time}`,
         status
       };
-      
+
       await sendStatusUpdate(appointment.email, appointmentDetails);
 
       res.json({ msg: 'Appointment updated successfully' });
@@ -221,30 +225,49 @@ router.put(
 // @access  Private
 router.delete('/:id', auth, async (req, res) => {
   try {
-    let query;
-    let params;
-    
-    if (req.user.role === 'admin') {
-      // Admins can delete any appointment
-      query = 'DELETE FROM appointments WHERE id = ?';
-      params = [req.params.id];
-    } else {
-      // Students can only delete their own appointments
-      query = `
-        DELETE a FROM appointments a
-        JOIN students s ON a.student_id = s.id
-        WHERE a.id = ? AND s.user_id = ?
-      `;
-      params = [req.params.id, req.user.id];
+    // First, get the appointment details for the email notification
+    const [appointments] = await pool.query(
+      `SELECT a.*, ts.start_time, ts.end_time, u.email, u.name
+       FROM appointments a
+       JOIN students s ON a.student_id = s.id
+       JOIN users u ON s.user_id = u.id
+       JOIN time_slots ts ON a.time_slot_id = ts.id
+       WHERE a.id = ?`,
+      [req.params.id]
+    );
+
+    if (appointments.length === 0) {
+      return res.status(404).json({ msg: 'Appointment not found' });
     }
-    
-    const [result] = await pool.query(query, params);
-    
+
+    const appointment = appointments[0];
+
+    // Check if the user is authorized to cancel this appointment
+    if (req.user.role !== 'admin' && appointment.user_id !== req.user.id) {
+      return res.status(403).json({ msg: 'Not authorized to cancel this appointment' });
+    }
+
+    // Instead of deleting, update the status to 'cancelled'
+    const [result] = await pool.query(
+      'UPDATE appointments SET status = ?, cancelled_at = NOW() WHERE id = ?',
+      ['cancelled', req.params.id]
+    );
+
     if (result.affectedRows === 0) {
       return res.status(404).json({ msg: 'Appointment not found' });
     }
-    
-    res.json({ msg: 'Appointment deleted successfully' });
+
+    // Send cancellation email
+    const appointmentDetails = {
+      date: new Date(appointment.date).toLocaleDateString(),
+      start_time: appointment.start_time,
+      end_time: appointment.end_time,
+      reason: appointment.reason
+    };
+
+    await sendAppointmentCancellationEmail(appointment.email, appointmentDetails);
+
+    res.json({ msg: 'Appointment cancelled successfully' });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: error.message });

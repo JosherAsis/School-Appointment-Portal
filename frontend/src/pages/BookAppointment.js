@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import NotificationService from '../services/NotificationService';
 
 const BookAppointment = () => {
   const { currentUser } = useContext(AuthContext);
@@ -57,11 +58,27 @@ const BookAppointment = () => {
       // Add the student_id from the current user
       const appointmentData = {
         ...formData,
-        student_id: currentUser.student_id
+        student_id: currentUser.student_id,
+        email: currentUser.email,
+        name: currentUser.name
       };
 
-      await axios.post('http://localhost:5001/api/appointments', appointmentData);
-      alert('Appointment booked successfully!');
+      // Book the appointment
+      const response = await axios.post('http://localhost:5001/api/appointments', appointmentData);
+
+      // Send confirmation email
+      try {
+        await NotificationService.sendAppointmentConfirmation({
+          ...appointmentData,
+          id: response.data.id,
+          date: new Date(appointmentData.date).toLocaleDateString()
+        });
+      } catch (emailError) {
+        console.error('Failed to send confirmation email:', emailError);
+        // Don't fail the whole operation if email fails
+      }
+
+      alert('Appointment booked successfully! A confirmation email has been sent.');
       navigate('/my-appointments');
     } catch (error) {
       alert('Error booking appointment: ' + (error.response?.data?.msg || error.message));

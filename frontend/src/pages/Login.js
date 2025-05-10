@@ -8,7 +8,7 @@ const Login = () => {
     password: ''
   });
   const [formError, setFormError] = useState('');
-  
+
   const { login, loading, error } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -19,10 +19,10 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
-    
+
     try {
       const user = await login(formData.email, formData.password);
-      
+
       // Redirect based on role
       if (user.role === 'admin') {
         navigate('/admin-dashboard');
@@ -38,7 +38,7 @@ const Login = () => {
     <div className="auth-form">
       <h2>Login</h2>
       {formError && <div className="alert alert-danger">{formError}</div>}
-      
+
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label>Email</label>
@@ -50,7 +50,7 @@ const Login = () => {
             required
           />
         </div>
-        
+
         <div className="form-group">
           <label>Password</label>
           <input
@@ -60,13 +60,16 @@ const Login = () => {
             onChange={handleChange}
             required
           />
+          <div className="forgot-password">
+            <Link to="/forgot-password">Forgot password?</Link>
+          </div>
         </div>
-        
+
         <button type="submit" disabled={loading}>
           {loading ? 'Logging in...' : 'Login'}
         </button>
       </form>
-      
+
       <p className="auth-redirect">
         Don't have an account? <Link to="/register">Register</Link>
       </p>

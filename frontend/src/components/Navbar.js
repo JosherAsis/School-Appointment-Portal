@@ -1,25 +1,40 @@
-import React, { useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 
 const Navbar = () => {
   const { currentUser, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = () => {
     logout();
     navigate('/');
+    setMenuOpen(false);
+  };
+
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
+
+  const closeMenu = () => {
+    setMenuOpen(false);
   };
 
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        <Link to="/" className="navbar-logo">
+        <Link to="/" className="navbar-logo" onClick={closeMenu}>
           School Appointment Portal
         </Link>
-        <ul className="nav-menu">
+        <div className="menu-icon" onClick={toggleMenu}>
+          <i className={menuOpen ? 'fas fa-times' : 'fas fa-bars'}>
+            {menuOpen ? '✕' : '☰'}
+          </i>
+        </div>
+        <ul className={menuOpen ? 'nav-menu active' : 'nav-menu'}>
           <li className="nav-item">
-            <Link to="/" className="nav-link">
+            <Link to="/" className="nav-link" onClick={closeMenu}>
               Home
             </Link>
           </li>
@@ -30,7 +45,7 @@ const Navbar = () => {
               {currentUser.role === 'admin' ? (
                 // Admin links
                 <li className="nav-item">
-                  <Link to="/admin-dashboard" className="nav-link">
+                  <Link to="/admin-dashboard" className="nav-link" onClick={closeMenu}>
                     Dashboard
                   </Link>
                 </li>
@@ -38,17 +53,17 @@ const Navbar = () => {
                 // Student links
                 <>
                   <li className="nav-item">
-                    <Link to="/student-dashboard" className="nav-link">
+                    <Link to="/student-dashboard" className="nav-link" onClick={closeMenu}>
                       Dashboard
                     </Link>
                   </li>
                   <li className="nav-item">
-                    <Link to="/book" className="nav-link">
+                    <Link to="/book" className="nav-link" onClick={closeMenu}>
                       Book Appointment
                     </Link>
                   </li>
                   <li className="nav-item">
-                    <Link to="/my-appointments" className="nav-link">
+                    <Link to="/my-appointments" className="nav-link" onClick={closeMenu}>
                       My Appointments
                     </Link>
                   </li>
@@ -65,12 +80,12 @@ const Navbar = () => {
             // Links for non-authenticated users
             <>
               <li className="nav-item">
-                <Link to="/login" className="nav-link">
+                <Link to="/login" className="nav-link" onClick={closeMenu}>
                   Login
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to="/register" className="nav-link">
+                <Link to="/register" className="nav-link" onClick={closeMenu}>
                   Register
                 </Link>
               </li>
