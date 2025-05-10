@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { AuthContext } from '../context/AuthContext';
 
 const BookAppointment = () => {
+  const { currentUser } = useContext(AuthContext);
   const [formData, setFormData] = useState({
-    student_id: '',
     date: '',
     time_slot_id: '',
     reason: ''
@@ -53,11 +54,17 @@ const BookAppointment = () => {
     setLoading(true);
 
     try {
-      await axios.post('http://localhost:5001/api/appointments', formData);
+      // Add the student_id from the current user
+      const appointmentData = {
+        ...formData,
+        student_id: currentUser.student_id
+      };
+
+      await axios.post('http://localhost:5001/api/appointments', appointmentData);
       alert('Appointment booked successfully!');
       navigate('/my-appointments');
     } catch (error) {
-      alert('Error booking appointment');
+      alert('Error booking appointment: ' + (error.response?.data?.msg || error.message));
       console.error(error);
     } finally {
       setLoading(false);
@@ -76,10 +83,11 @@ const BookAppointment = () => {
           <input
             type="text"
             name="student_id"
-            value={formData.student_id}
-            onChange={handleChange}
-            required
+            value={currentUser?.student_id || ''}
+            disabled
+            className="disabled-input"
           />
+          <small>Using your registered student ID</small>
         </div>
 
         <div className="form-group">

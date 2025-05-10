@@ -1,31 +1,39 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import { AuthContext } from '../context/AuthContext';
 
 const MyAppointments = () => {
+  const { currentUser } = useContext(AuthContext);
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        // In a real app, you'd filter by the logged-in student
+        // The backend will filter appointments based on the user's token
         const response = await axios.get('http://localhost:5001/api/appointments');
         setAppointments(response.data);
+        setError(null);
       } catch (error) {
         console.error('Error fetching appointments:', error);
+        setError('Failed to load appointments. Please try again later.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchAppointments();
-  }, []);
+    if (currentUser) {
+      fetchAppointments();
+    }
+  }, [currentUser]);
 
-  if (loading) return <div>Loading appointments...</div>;
+  if (loading) return <div className="loading">Loading appointments...</div>;
 
   return (
     <div className="my-appointments">
       <h2>My Appointments</h2>
+      {error && <div className="alert alert-danger">{error}</div>}
       {appointments.length === 0 ? (
         <p>No appointments found.</p>
       ) : (
