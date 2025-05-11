@@ -14,6 +14,8 @@ app.use(express.json());
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/appointments', require('./routes/appointments'));
 app.use('/api/students', require('./routes/students'));
+app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/time-slots', require('./routes/timeSlots'));
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}/`);

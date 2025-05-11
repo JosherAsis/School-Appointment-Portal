@@ -103,6 +103,7 @@ const sendAppointmentCancellationEmail = async (email, appointmentDetails) => {
 };
 
 module.exports = {
+  transporter,
   sendAppointmentConfirmation,
   sendStatusUpdate,
   sendPasswordResetEmail,

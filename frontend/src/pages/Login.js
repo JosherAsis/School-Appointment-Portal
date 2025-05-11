@@ -22,14 +22,20 @@ const Login = () => {
 
     try {
       const user = await login(formData.email, formData.password);
+      console.log('Login successful, user data:', user);
 
       // Redirect based on role
-      if (user.role === 'admin') {
+      if (user && user.role === 'admin') {
         navigate('/admin-dashboard');
-      } else {
+      } else if (user) {
         navigate('/student-dashboard');
+      } else {
+        // This shouldn't happen if login is successful, but just in case
+        console.error('Login successful but no user data returned');
+        setFormError('Login successful but user data is missing. Please try again.');
       }
     } catch (err) {
+      console.error('Login error:', err);
       setFormError(error || 'Login failed. Please try again.');
     }
   };

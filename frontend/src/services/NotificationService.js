@@ -1,11 +1,11 @@
-import axios from 'axios';
+import api from './api';
 
 // Service for handling notifications (email, in-app, etc.)
 class NotificationService {
   // Send email notification
   static async sendEmail(data) {
     try {
-      const response = await axios.post('http://localhost:5001/api/notifications/email', data);
+      const response = await api.post('/notifications/email', data);
       return response.data;
     } catch (error) {
       console.error('Error sending email notification:', error);
@@ -22,7 +22,7 @@ class NotificationService {
         subject: 'Appointment Confirmation',
         appointmentData
       };
-      
+
       return await this.sendEmail(data);
     } catch (error) {
       console.error('Error sending appointment confirmation:', error);
@@ -39,7 +39,7 @@ class NotificationService {
         subject: 'Appointment Cancellation',
         appointmentData
       };
-      
+
       return await this.sendEmail(data);
     } catch (error) {
       console.error('Error sending appointment cancellation:', error);
@@ -56,7 +56,7 @@ class NotificationService {
         subject: 'Appointment Reminder',
         appointmentData
       };
-      
+
       return await this.sendEmail(data);
     } catch (error) {
       console.error('Error sending appointment reminder:', error);
@@ -73,7 +73,7 @@ class NotificationService {
         subject: 'Password Reset Request',
         resetToken
       };
-      
+
       return await this.sendEmail(data);
     } catch (error) {
       console.error('Error sending password reset email:', error);

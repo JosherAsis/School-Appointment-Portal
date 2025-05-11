@@ -126,7 +126,15 @@ router.post(
         { expiresIn: '1d' },
         (err, token) => {
           if (err) throw err;
-          res.json({ token });
+          // Return user data along with token (excluding password)
+          const userData = {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role
+          };
+          console.log('Sending login response with token and user data:', { token, user: userData });
+          res.json({ token, user: userData });
         }
       );
     } catch (err) {

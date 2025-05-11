@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+        .error {
+            color: #dc3545;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        .success {
+            color: #28a745;
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #0069d9;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        input {
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <h1>Authentication Debug Tool</h1>
+    
+    <div class="card">
+        <h2>Current Authentication State</h2>
+        <button id="check-auth">Check Authentication</button>
+        <div id="auth-status"></div>
+    </div>
+    
+    <div class="card">
+        <h2>Test Login</h2>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" placeholder="Enter your password">
+        </div>
+        <button id="test-login">Test Login</button>
+        <div id="login-result"></div>
+    </div>
+    
+    <div class="card">
+        <h2>Clear Authentication</h2>
+        <button id="clear-auth">Clear Authentication Data</button>
+        <div id="clear-result"></div>
+    </div>
+    
+    <div id="result">
+        <h3>Results:</h3>
+        <div id="result-content">Click any button above to see results here.</div>
+    </div>
+    
+    <script>
+        // Check current authentication state
+        document.getElementById('check-auth').addEventListener('click', () => {
+            const authStatus = document.getElementById('auth-status');
+            const resultContent = document.getElementById('result-content');
+            
+            const token = localStorage.getItem('token');
+            const userData = localStorage.getItem('user');
+            
+            if (token && userData) {
+                try {
+                    const user = JSON.parse(userData);
+                    authStatus.innerHTML = `
+                        <div class="success">
+                            <h3>Authenticated</h3>
+                            <p><strong>User:</strong> ${user.name || 'Name not available'}</p>
+                            <p><strong>Email:</strong> ${user.email || 'Email not available'}</p>
+                            <p><strong>Role:</strong> ${user.role || 'Role not available'}</p>
+                            <p><strong>Token:</strong> ${token.substring(0, 20)}...</p>
+                        </div>
+                    `;
+                    
+                    resultContent.innerHTML = `
+                        <h3>Authentication Data</h3>
+                        <p><strong>Token:</strong></p>
+                        <pre>${token}</pre>
+                        <p><strong>User Data:</strong></p>
+                        <pre>${JSON.stringify(user, null, 2)}</pre>
+                    `;
+                } catch (e) {
+                    authStatus.innerHTML = `
+                        <div class="error">
+                            <h3>Error Parsing User Data</h3>
+                            <p>Token exists but user data is invalid JSON.</p>
+                            <p>Error: ${e.message}</p>
+                        </div>
+                    `;
+                    
+                    resultContent.innerHTML = `
+                        <h3>Error Parsing User Data</h3>
+                        <p>Token: ${token}</p>
+                        <p>Raw user data: ${userData}</p>
+                        <p>Error: ${e.message}</p>
+                    `;
+                }
+            } else {
+                authStatus.innerHTML = `
+                    <div class="error">
+                        <h3>Not Authenticated</h3>
+                        <p>No authentication token found in localStorage.</p>
+                    </div>
+                `;
+                
+                resultContent.innerHTML = `
+                    <h3>Not Authenticated</h3>
+                    <p>No authentication data found in localStorage.</p>
+                    <p>Token: ${token ? 'Present' : 'Not found'}</p>
+                    <p>User data: ${userData ? 'Present' : 'Not found'}</p>
+                `;
+            }
+        });
+        
+        // Test login
+        document.getElementById('test-login').addEventListener('click', async () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginResult = document.getElementById('login-result');
+            const resultContent = document.getElementById('result-content');
+            
+            if (!email || !password) {
+                loginResult.innerHTML = `
+                    <div class="error">
+                        <h3>Error</h3>
+                        <p>Please enter both email and password.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            loginResult.innerHTML = '<p>Logging in...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:5001/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Save to localStorage
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    
+                    loginResult.innerHTML = `
+                        <div class="success">
+                            <h3>Login Successful</h3>
+                            <p>Authentication data saved to localStorage.</p>
+                        </div>
+                    `;
+                    
+                    resultContent.innerHTML = `
+                        <h3>Login Response</h3>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    loginResult.innerHTML = `
+                        <div class="error">
+                            <h3>Login Failed</h3>
+                            <p>${data.msg || 'Unknown error'}</p>
+                        </div>
+                    `;
+                    
+                    resultContent.innerHTML = `
+                        <h3>Login Error</h3>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                loginResult.innerHTML = `
+                    <div class="error">
+                        <h3>Error</h3>
+                        <p>Failed to connect to the API: ${error.message}</p>
+                    </div>
+                `;
+                
+                resultContent.innerHTML = `
+                    <h3>Connection Error</h3>
+                    <p>${error.message}</p>
+                    <p>Make sure the backend server is running at http://localhost:5001</p>
+                `;
+            }
+        });
+        
+        // Clear authentication data
+        document.getElementById('clear-auth').addEventListener('click', () => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            
+            const clearResult = document.getElementById('clear-result');
+            const resultContent = document.getElementById('result-content');
+            
+            clearResult.innerHTML = `
+                <div class="success">
+                    <h3>Authentication Cleared</h3>
+                    <p>Token and user data have been removed from localStorage.</p>
+                </div>
+            `;
+            
+            resultContent.innerHTML = `
+                <h3>Authentication Cleared</h3>
+                <p>All authentication data has been removed from localStorage.</p>
+                <p>You are now logged out.</p>
+            `;
+        });
+    </script>
+</body>
+</html>
