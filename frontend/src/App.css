@@ -291,6 +291,26 @@ body {
   font-size: 0.8rem;
 }
 
+.error-message {
+  color: #dc3545;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-top: 5px;
+  font-size: 0.9rem;
+}
+
+.info-message {
+  color: #0c5460;
+  background-color: #d1ecf1;
+  border: 1px solid #bee5eb;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-top: 5px;
+  font-size: 0.9rem;
+}
+
 .disabled-input {
   background-color: #e9ecef;
   cursor: not-allowed;

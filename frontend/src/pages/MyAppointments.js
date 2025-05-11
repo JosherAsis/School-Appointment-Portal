@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import NotificationService from '../services/NotificationService';
+import api from '../services/api';
 
 const MyAppointments = () => {
   const { currentUser } = useContext(AuthContext);
@@ -17,7 +17,7 @@ const MyAppointments = () => {
     const fetchAppointments = async () => {
       try {
         // The backend will filter appointments based on the user's token
-        const response = await axios.get('http://localhost:5001/api/appointments');
+        const response = await api.get('/appointments');
         setAppointments(response.data);
         setError(null);
       } catch (error) {
@@ -53,8 +53,8 @@ const MyAppointments = () => {
       // Find the appointment to be cancelled
       const appointmentToCancel = appointments.find(app => app.id === selectedAppointmentId);
 
-      // In a real app, this would call your backend API
-      await axios.delete(`http://localhost:5001/api/appointments/${selectedAppointmentId}`);
+      // Call the backend API to delete the appointment
+      await api.delete(`/appointments/${selectedAppointmentId}`);
 
       // Send cancellation email
       try {

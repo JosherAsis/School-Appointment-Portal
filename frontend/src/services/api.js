@@ -14,10 +14,14 @@ api.interceptors.request.use(
     const token = localStorage.getItem('token');
     if (token) {
       config.headers['x-auth-token'] = token;
+      console.log('Adding auth token to request:', config.url);
+    } else {
+      console.warn('No auth token found for request:', config.url);
     }
     return config;
   },
   (error) => {
+    console.error('Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
@@ -32,7 +36,7 @@ api.interceptors.response.use(
     if (error.response) {
       // Server responded with an error status
       console.error('API Error:', error.response.data);
-      
+
       // Handle 401 Unauthorized errors (token expired, etc.)
       if (error.response.status === 401) {
         localStorage.removeItem('token');
@@ -47,7 +51,7 @@ api.interceptors.response.use(
       // Something else happened
       console.error('Error:', error.message);
     }
-    
+
     return Promise.reject(error);
   }
 );
