@@ -8,6 +8,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import BookAppointment from './pages/BookAppointment';
 import MyAppointments from './pages/MyAppointments';
+import RescheduleAppointment from './pages/RescheduleAppointment';
 import StudentDashboard from './pages/StudentDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import { AuthProvider } from './context/AuthContext';
@@ -37,6 +38,7 @@ function App() {
               <Route element={<ProtectedRoute />}>
                 <Route path="/book" element={<BookAppointment />} />
                 <Route path="/my-appointments" element={<MyAppointments />} />
+                <Route path="/reschedule-appointment/:appointmentId" element={<RescheduleAppointment />} />
               </Route>
 
               {/* Student-only routes */}

@@ -64,6 +64,23 @@ class NotificationService {
     }
   }
 
+  // Send appointment reschedule notification
+  static async sendAppointmentReschedule(appointmentData) {
+    try {
+      const data = {
+        type: 'appointment_reschedule',
+        recipient: appointmentData.email,
+        subject: 'Appointment Rescheduled',
+        appointmentData
+      };
+
+      return await this.sendEmail(data);
+    } catch (error) {
+      console.error('Error sending appointment reschedule notification:', error);
+      throw error;
+    }
+  }
+
   // Send password reset email
   static async sendPasswordResetEmail(email, resetToken) {
     try {

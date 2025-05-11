@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import NotificationService from '../services/NotificationService';
 import api from '../services/api';
 
 const MyAppointments = () => {
   const { currentUser } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -40,9 +42,8 @@ const MyAppointments = () => {
   };
 
   const handleRescheduleAppointment = (id) => {
-    // In a real app, this would navigate to a reschedule page
-    // For now, we'll just show an alert
-    alert('Reschedule functionality will be implemented soon!');
+    // Navigate to the reschedule page with the appointment ID
+    navigate(`/reschedule-appointment/${id}`);
   };
 
   const confirmCancelAppointment = async () => {
@@ -53,32 +54,56 @@ const MyAppointments = () => {
       // Find the appointment to be cancelled
       const appointmentToCancel = appointments.find(app => app.id === selectedAppointmentId);
 
-      // Call the backend API to delete the appointment
-      await api.delete(`/appointments/${selectedAppointmentId}`);
+      if (!appointmentToCancel) {
+        throw new Error('Appointment not found');
+      }
+
+      console.log('Cancelling appointment:', selectedAppointmentId);
+
+      // Call the backend API to cancel the appointment
+      const response = await api.delete(`/appointments/${selectedAppointmentId}`);
+      console.log('Cancel response:', response.data);
 
       // Send cancellation email
       try {
-        if (appointmentToCancel) {
-          await NotificationService.sendAppointmentCancellation({
-            ...appointmentToCancel,
-            email: currentUser.email,
-            name: currentUser.name,
-            date: new Date(appointmentToCancel.date).toLocaleDateString()
-          });
-        }
+        await NotificationService.sendAppointmentCancellation({
+          ...appointmentToCancel,
+          email: currentUser.email,
+          name: currentUser.name,
+          date: new Date(appointmentToCancel.date).toLocaleDateString()
+        });
       } catch (emailError) {
         console.error('Failed to send cancellation email:', emailError);
         // Don't fail the whole operation if email fails
       }
 
-      // Update the appointments list
-      setAppointments(appointments.filter(app => app.id !== selectedAppointmentId));
+      // Update the appointments list - either remove it or update its status
+      setAppointments(appointments.map(app =>
+        app.id === selectedAppointmentId
+          ? { ...app, status: 'cancelled' }
+          : app
+      ));
+
+      // Show success message
+      alert('Appointment cancelled successfully!');
 
       // Close the modal
       setShowConfirmModal(false);
       setSelectedAppointmentId(null);
     } catch (err) {
-      setError('Failed to cancel appointment: ' + (err.response?.data?.msg || err.message));
+      console.error('Error cancelling appointment:', err);
+
+      let errorMessage = 'Failed to cancel appointment: ';
+
+      if (err.response) {
+        errorMessage += err.response.data?.msg || `Server error (${err.response.status})`;
+        console.error('Response data:', err.response.data);
+      } else {
+        errorMessage += err.message || 'Unknown error';
+      }
+
+      setError(errorMessage);
+      alert(errorMessage);
     } finally {
       setCancelLoading(false);
     }
