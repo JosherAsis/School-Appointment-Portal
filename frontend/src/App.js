@@ -11,6 +11,11 @@ import MyAppointments from './pages/MyAppointments';
 import RescheduleAppointment from './pages/RescheduleAppointment';
 import StudentDashboard from './pages/StudentDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import ManageAppointments from './pages/ManageAppointments';
+import ManageTimeSlots from './pages/ManageTimeSlots';
+import StudentDirectory from './pages/StudentDirectory';
+import ExportReports from './pages/ExportReports';
+import AppointmentDetails from './pages/AppointmentDetails';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute, AdminRoute, StudentRoute, PublicRoute } from './components/ProtectedRoute';
 import './App.css';
@@ -49,6 +54,11 @@ function App() {
               {/* Admin-only routes */}
               <Route element={<AdminRoute />}>
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                <Route path="/manage-appointments" element={<ManageAppointments />} />
+                <Route path="/manage-time-slots" element={<ManageTimeSlots />} />
+                <Route path="/student-directory" element={<StudentDirectory />} />
+                <Route path="/export-reports" element={<ExportReports />} />
+                <Route path="/appointment/:appointmentId" element={<AppointmentDetails />} />
               </Route>
             </Routes>
           </div>
