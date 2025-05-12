@@ -70,7 +70,15 @@ router.post(
         { expiresIn: '1d' },
         (err, token) => {
           if (err) throw err;
-          res.json({ token });
+          // Return user data along with token (similar to login route)
+          const userData = {
+            id: userResult.insertId,
+            name: name,
+            email: email,
+            role: 'student'
+          };
+          console.log('Sending registration response with token and user data:', { token, user: userData });
+          res.json({ token, user: userData });
         }
       );
     } catch (err) {
