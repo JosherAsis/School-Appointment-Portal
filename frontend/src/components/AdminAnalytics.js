@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 
 const AdminAnalytics = () => {
   const [analyticsData, setAnalyticsData] = useState({
@@ -29,44 +29,16 @@ const AdminAnalytics = () => {
   useEffect(() => {
     const fetchAnalyticsData = async () => {
       try {
-        // In a real app, this would fetch from your backend API
-        // For now, we'll use dummy data
-        
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Dummy data
-        setAnalyticsData({
-          appointmentsByStatus: {
-            pending: 12,
-            approved: 25,
-            rejected: 5,
-            completed: 18,
-            cancelled: 8
-          },
-          appointmentsByDay: {
-            Monday: 15,
-            Tuesday: 12,
-            Wednesday: 18,
-            Thursday: 10,
-            Friday: 13
-          },
-          appointmentsByMonth: {
-            Jan: 5, Feb: 8, Mar: 12, Apr: 15, May: 10, Jun: 8,
-            Jul: 6, Aug: 4, Sep: 7, Oct: 9, Nov: 12, Dec: 10
-          },
-          topReasons: [
-            { reason: 'Academic advising', count: 20 },
-            { reason: 'Course registration', count: 15 },
-            { reason: 'Scholarship application', count: 12 },
-            { reason: 'Career counseling', count: 10 },
-            { reason: 'Personal issues', count: 8 }
-          ]
-        });
-        
+        // Fetch analytics data from the backend
+        const response = await api.get('/dashboard/analytics');
+
+        // Set analytics data from API response
+        setAnalyticsData(response.data);
+
         setLoading(false);
       } catch (err) {
-        setError('Failed to load analytics data');
+        console.error('Error fetching analytics data:', err);
+        setError('Failed to load analytics data. Please try again later.');
         setLoading(false);
       }
     };
@@ -88,16 +60,16 @@ const AdminAnalytics = () => {
   return (
     <div className="admin-analytics">
       <h3>Appointment Analytics</h3>
-      
+
       <div className="analytics-section">
         <h4>Appointments by Status</h4>
         <div className="chart status-chart">
           {Object.entries(analyticsData.appointmentsByStatus).map(([status, count]) => (
             <div className="chart-bar-container" key={status}>
-              <div 
-                className={`chart-bar status-${status}`} 
-                style={{ 
-                  height: `${(count / getMaxValue(analyticsData.appointmentsByStatus)) * 100}%` 
+              <div
+                className={`chart-bar status-${status}`}
+                style={{
+                  height: `${(count / getMaxValue(analyticsData.appointmentsByStatus)) * 100}%`
                 }}
               >
                 <span className="chart-value">{count}</span>
@@ -107,16 +79,16 @@ const AdminAnalytics = () => {
           ))}
         </div>
       </div>
-      
+
       <div className="analytics-section">
         <h4>Appointments by Day of Week</h4>
         <div className="chart day-chart">
           {Object.entries(analyticsData.appointmentsByDay).map(([day, count]) => (
             <div className="chart-bar-container" key={day}>
-              <div 
-                className="chart-bar" 
-                style={{ 
-                  height: `${(count / getMaxValue(analyticsData.appointmentsByDay)) * 100}%` 
+              <div
+                className="chart-bar"
+                style={{
+                  height: `${(count / getMaxValue(analyticsData.appointmentsByDay)) * 100}%`
                 }}
               >
                 <span className="chart-value">{count}</span>
@@ -126,7 +98,7 @@ const AdminAnalytics = () => {
           ))}
         </div>
       </div>
-      
+
       <div className="analytics-section">
         <h4>Top Appointment Reasons</h4>
         <div className="chart reason-chart">
@@ -134,10 +106,10 @@ const AdminAnalytics = () => {
             <div className="reason-item" key={index}>
               <div className="reason-label">{item.reason}</div>
               <div className="reason-bar-container">
-                <div 
-                  className="reason-bar" 
-                  style={{ 
-                    width: `${(item.count / analyticsData.topReasons[0].count) * 100}%` 
+                <div
+                  className="reason-bar"
+                  style={{
+                    width: `${(item.count / analyticsData.topReasons[0].count) * 100}%`
                   }}
                 ></div>
                 <span className="reason-value">{item.count}</span>

@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import AdminAnalytics from '../components/AdminAnalytics';
+import api from '../services/api';
+import { formatTime } from '../utils/timeFormatter';
 
 const AdminDashboard = () => {
   const { currentUser } = useContext(AuthContext);
@@ -18,53 +19,14 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // In a real app, you'd fetch this data from the backend
-        // For now, we'll use dummy data
+        // Fetch dashboard data from the backend
+        const response = await api.get('/dashboard');
 
-        // Simulate API call delay
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Set stats from API response
+        setStats(response.data.stats);
 
-        // Dummy stats
-        setStats({
-          totalAppointments: 45,
-          pendingAppointments: 12,
-          todayAppointments: 5,
-          totalStudents: 120
-        });
-
-        // Dummy recent appointments
-        setRecentAppointments([
-          {
-            id: 1,
-            student_name: 'John Doe',
-            student_id: 'S12345',
-            date: '2023-05-15',
-            start_time: '10:00:00',
-            end_time: '11:00:00',
-            reason: 'Academic advising',
-            status: 'pending'
-          },
-          {
-            id: 2,
-            student_name: 'Jane Smith',
-            student_id: 'S12346',
-            date: '2023-05-15',
-            start_time: '13:00:00',
-            end_time: '14:00:00',
-            reason: 'Course registration',
-            status: 'approved'
-          },
-          {
-            id: 3,
-            student_name: 'Bob Johnson',
-            student_id: 'S12347',
-            date: '2023-05-16',
-            start_time: '09:00:00',
-            end_time: '10:00:00',
-            reason: 'Scholarship application',
-            status: 'pending'
-          }
-        ]);
+        // Set recent appointments from API response
+        setRecentAppointments(response.data.recentAppointments);
 
         setLoading(false);
       } catch (error) {
@@ -147,7 +109,7 @@ const AdminDashboard = () => {
                   <small>{appointment.student_id}</small>
                 </td>
                 <td>{new Date(appointment.date).toLocaleDateString()}</td>
-                <td>{appointment.start_time} - {appointment.end_time}</td>
+                <td>{formatTime(appointment.start_time)} - {formatTime(appointment.end_time)}</td>
                 <td>{appointment.reason}</td>
                 <td>
                   <span className={`status-badge ${getStatusClass(appointment.status)}`}>

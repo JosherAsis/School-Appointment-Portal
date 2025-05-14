@@ -407,7 +407,7 @@ router.delete('/:id', auth, async (req, res) => {
   try {
     // First, get the appointment details for the email notification
     const [appointments] = await pool.query(
-      `SELECT a.*, ts.start_time, ts.end_time, u.email, u.name
+      `SELECT a.*, ts.start_time, ts.end_time, u.email, u.name, s.user_id
        FROM appointments a
        JOIN students s ON a.student_id = s.id
        JOIN users u ON s.user_id = u.id
@@ -423,7 +423,13 @@ router.delete('/:id', auth, async (req, res) => {
     const appointment = appointments[0];
 
     // Check if the user is authorized to cancel this appointment
-    if (req.user.role !== 'admin' && appointment.user_id !== req.user.id) {
+    // Add debug logging to help diagnose the issue
+    console.log('Authorization check for cancellation:');
+    console.log('User ID from token:', req.user.id, 'Type:', typeof req.user.id);
+    console.log('User ID from appointment:', appointment.user_id, 'Type:', typeof appointment.user_id);
+
+    // Convert both IDs to numbers for proper comparison
+    if (req.user.role !== 'admin' && parseInt(appointment.user_id) !== parseInt(req.user.id)) {
       return res.status(403).json({ msg: 'Not authorized to cancel this appointment' });
     }
 
