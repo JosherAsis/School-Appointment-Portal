@@ -91,11 +91,21 @@ router.post(
 
     const { day_of_week, start_time, end_time, max_appointments, is_available } = req.body;
 
+    // Check if the day is a weekend (0 = Sunday, 6 = Saturday)
+    if (day_of_week === 0 || day_of_week === 6) {
+      return res.status(400).json({ msg: 'Cannot create time slots on weekends (Saturday or Sunday)' });
+    }
+
+    // Check if the time slot starts after 5 PM (17:00:00)
+    if (start_time >= '17:00:00') {
+      return res.status(400).json({ msg: 'Cannot create time slots after 5 PM' });
+    }
+
     try {
       // Check if the time slot overlaps with existing time slots
       const [existingSlots] = await pool.query(
-        `SELECT * FROM time_slots 
-         WHERE day_of_week = ? 
+        `SELECT * FROM time_slots
+         WHERE day_of_week = ?
          AND ((start_time <= ? AND end_time > ?) OR (start_time < ? AND end_time >= ?) OR (start_time >= ? AND end_time <= ?))`,
         [day_of_week, start_time, start_time, end_time, end_time, start_time, end_time]
       );
@@ -150,6 +160,16 @@ router.put(
 
     const { day_of_week, start_time, end_time, max_appointments, is_available } = req.body;
 
+    // Check if the day is being updated to a weekend (0 = Sunday, 6 = Saturday)
+    if (day_of_week !== undefined && (day_of_week === 0 || day_of_week === 6)) {
+      return res.status(400).json({ msg: 'Cannot create time slots on weekends (Saturday or Sunday)' });
+    }
+
+    // Check if the time slot is being updated to start after 5 PM (17:00:00)
+    if (start_time !== undefined && start_time >= '17:00:00') {
+      return res.status(400).json({ msg: 'Cannot create time slots after 5 PM' });
+    }
+
     try {
       // Check if the time slot exists
       const [timeSlots] = await pool.query(
@@ -169,8 +189,8 @@ router.put(
       // Check if the updated time slot overlaps with existing time slots
       if (day_of_week !== undefined || start_time !== undefined || end_time !== undefined) {
         const [existingSlots] = await pool.query(
-          `SELECT * FROM time_slots 
-           WHERE id != ? AND day_of_week = ? 
+          `SELECT * FROM time_slots
+           WHERE id != ? AND day_of_week = ?
            AND ((start_time <= ? AND end_time > ?) OR (start_time < ? AND end_time >= ?) OR (start_time >= ? AND end_time <= ?))`,
           [req.params.id, updatedDayOfWeek, updatedStartTime, updatedStartTime, updatedEndTime, updatedEndTime, updatedStartTime, updatedEndTime]
         );

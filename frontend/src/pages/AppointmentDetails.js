@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import api from '../services/api';
 import '../styles/AppointmentDetails.css';
+import { formatTime, formatDate, getDayOfWeek } from '../utils/timeFormatter';
 
 const AppointmentDetails = () => {
   const { appointmentId } = useParams();
@@ -50,11 +51,11 @@ const AppointmentDetails = () => {
   // Submit status update
   const handleStatusUpdate = async (e) => {
     e.preventDefault();
-    
+
     setUpdateLoading(true);
     try {
       await api.put(`/appointments/${appointmentId}`, statusUpdateData);
-      
+
       // Update the appointment in the local state
       setAppointment(prev => ({ ...prev, ...statusUpdateData }));
       setShowStatusModal(false);
@@ -78,28 +79,7 @@ const AppointmentDetails = () => {
     }
   };
 
-  // Format date
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString();
-  };
-
-  // Format time
-  const formatTime = (timeString) => {
-    if (!timeString) return '';
-    
-    const [hours, minutes] = timeString.split(':');
-    const hour = parseInt(hours, 10);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const hour12 = hour % 12 || 12;
-    return `${hour12}:${minutes} ${ampm}`;
-  };
-
-  // Get day of week
-  const getDayOfWeek = (dateString) => {
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const date = new Date(dateString);
-    return days[date.getDay()];
-  };
+  // Using imported utility functions for date and time formatting
 
   if (loading) {
     return <div className="loading">Loading appointment details...</div>;
@@ -135,11 +115,11 @@ const AppointmentDetails = () => {
           Back
         </button>
       </div>
-      
+
       <div className="details-container">
         <div className="details-section">
           <h3>Appointment Information</h3>
-          
+
           <div className="detail-row">
             <div className="detail-label">Status:</div>
             <div className="detail-value">
@@ -148,28 +128,28 @@ const AppointmentDetails = () => {
               </span>
             </div>
           </div>
-          
+
           <div className="detail-row">
             <div className="detail-label">Date:</div>
             <div className="detail-value">
               {formatDate(appointment.date)} ({getDayOfWeek(appointment.date)})
             </div>
           </div>
-          
+
           <div className="detail-row">
             <div className="detail-label">Time:</div>
             <div className="detail-value">
               {formatTime(appointment.start_time)} - {formatTime(appointment.end_time)}
             </div>
           </div>
-          
+
           <div className="detail-row">
             <div className="detail-label">Reason:</div>
             <div className="detail-value reason-text">
               {appointment.reason}
             </div>
           </div>
-          
+
           {appointment.admin_notes && (
             <div className="detail-row">
               <div className="detail-label">Admin Notes:</div>
@@ -178,14 +158,14 @@ const AppointmentDetails = () => {
               </div>
             </div>
           )}
-          
+
           <div className="detail-row">
             <div className="detail-label">Created:</div>
             <div className="detail-value">
               {new Date(appointment.created_at).toLocaleString()}
             </div>
           </div>
-          
+
           {appointment.cancelled_at && (
             <div className="detail-row">
               <div className="detail-label">Cancelled:</div>
@@ -195,35 +175,35 @@ const AppointmentDetails = () => {
             </div>
           )}
         </div>
-        
+
         <div className="details-section">
           <h3>Student Information</h3>
-          
+
           <div className="detail-row">
             <div className="detail-label">Name:</div>
             <div className="detail-value">
               {appointment.name || appointment.student_name}
             </div>
           </div>
-          
+
           <div className="detail-row">
             <div className="detail-label">Student ID:</div>
             <div className="detail-value">
               {appointment.student_id}
             </div>
           </div>
-          
+
           <div className="detail-row">
             <div className="detail-label">Email:</div>
             <div className="detail-value">
               {appointment.email}
             </div>
           </div>
-          
+
           {currentUser && currentUser.role === 'admin' && (
             <div className="student-actions">
-              <Link 
-                to={`/student-directory?student=${appointment.student_id}`} 
+              <Link
+                to={`/student-directory?student=${appointment.student_id}`}
                 className="btn btn-secondary"
               >
                 View Student Profile
@@ -232,47 +212,47 @@ const AppointmentDetails = () => {
           )}
         </div>
       </div>
-      
+
       {currentUser && currentUser.role === 'admin' && (
         <div className="admin-actions">
-          <button 
+          <button
             className="btn btn-primary"
             onClick={() => setShowStatusModal(true)}
             disabled={appointment.status === 'cancelled'}
           >
             Update Status
           </button>
-          
-          <Link 
-            to={`/manage-appointments`} 
+
+          <Link
+            to={`/manage-appointments`}
             className="btn btn-secondary"
           >
             View All Appointments
           </Link>
         </div>
       )}
-      
+
       {/* Status Update Modal */}
       {showStatusModal && (
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-header">
               <h3>Update Appointment Status</h3>
-              <button 
+              <button
                 className="close-btn"
                 onClick={() => setShowStatusModal(false)}
               >
                 &times;
               </button>
             </div>
-            
+
             <div className="modal-body">
               <form onSubmit={handleStatusUpdate}>
                 <div className="form-group">
                   <label>Status:</label>
-                  <select 
-                    name="status" 
-                    value={statusUpdateData.status} 
+                  <select
+                    name="status"
+                    value={statusUpdateData.status}
                     onChange={handleStatusFormChange}
                     required
                   >
@@ -282,27 +262,27 @@ const AppointmentDetails = () => {
                     <option value="completed">Completed</option>
                   </select>
                 </div>
-                
+
                 <div className="form-group">
                   <label>Admin Notes:</label>
-                  <textarea 
-                    name="admin_notes" 
-                    value={statusUpdateData.admin_notes} 
+                  <textarea
+                    name="admin_notes"
+                    value={statusUpdateData.admin_notes}
                     onChange={handleStatusFormChange}
                     rows="3"
                   ></textarea>
                 </div>
-                
+
                 <div className="modal-footer">
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="btn btn-secondary"
                     onClick={() => setShowStatusModal(false)}
                   >
                     Cancel
                   </button>
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     className="btn btn-primary"
                     disabled={updateLoading}
                   >

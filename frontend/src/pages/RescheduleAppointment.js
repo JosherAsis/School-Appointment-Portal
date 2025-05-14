@@ -3,12 +3,13 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import NotificationService from '../services/NotificationService';
 import api from '../services/api';
+import { formatTime, formatDate } from '../utils/timeFormatter';
 
 const RescheduleAppointment = () => {
   const { appointmentId } = useParams();
   const { currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
-  
+
   const [appointment, setAppointment] = useState(null);
   const [formData, setFormData] = useState({
     date: '',
@@ -27,13 +28,13 @@ const RescheduleAppointment = () => {
       try {
         const response = await api.get(`/appointments/${appointmentId}`);
         setAppointment(response.data);
-        
+
         // Set the current date and time slot as default values
         setFormData({
           date: response.data.date,
           time_slot_id: response.data.time_slot_id,
         });
-        
+
         setError('');
       } catch (error) {
         console.error('Error fetching appointment:', error);
@@ -71,23 +72,23 @@ const RescheduleAppointment = () => {
       // Get the day of week for the selected date (0 = Sunday, 1 = Monday, etc.)
       const selectedDate = new Date(formData.date);
       const dayOfWeek = selectedDate.getDay();
-      
+
       console.log('Selected date:', formData.date);
       console.log('Day of week:', dayOfWeek);
-      
+
       // Filter time slots for this day of week
       const slotsForDay = timeSlots.filter(slot => slot.day_of_week === dayOfWeek);
-      
+
       console.log('Available time slots for this day:', slotsForDay);
       setFilteredTimeSlots(slotsForDay);
-      
+
       // If there are no time slots for this day, show an error
       if (slotsForDay.length === 0) {
         setError(`No time slots available for ${selectedDate.toLocaleDateString('en-US', { weekday: 'long' })}`);
       } else {
         setError('');
       }
-      
+
       // Reset time slot selection if the current selection is not valid for this day
       if (formData.time_slot_id) {
         const isValidSlot = slotsForDay.some(slot => slot.id === parseInt(formData.time_slot_id));
@@ -149,9 +150,9 @@ const RescheduleAppointment = () => {
       navigate('/my-appointments');
     } catch (error) {
       console.error('Error rescheduling appointment:', error);
-      
+
       let errorMessage = 'Error rescheduling appointment: ';
-      
+
       if (error.response) {
         errorMessage += error.response.data?.msg || `Server error (${error.response.status})`;
         console.error('Response data:', error.response.data);
@@ -162,7 +163,7 @@ const RescheduleAppointment = () => {
       } else {
         errorMessage += error.message || 'Unknown error';
       }
-      
+
       alert(errorMessage);
     } finally {
       setLoading(false);
@@ -181,15 +182,15 @@ const RescheduleAppointment = () => {
     <div className="reschedule-appointment">
       <h2>Reschedule Appointment</h2>
       {error && <div className="alert alert-danger">{error}</div>}
-      
+
       <div className="current-appointment-details">
         <h3>Current Appointment Details</h3>
-        <p><strong>Date:</strong> {new Date(appointment.date).toLocaleDateString()}</p>
-        <p><strong>Time:</strong> {appointment.start_time} - {appointment.end_time}</p>
+        <p><strong>Date:</strong> {formatDate(appointment.date)}</p>
+        <p><strong>Time:</strong> {formatTime(appointment.start_time)} - {formatTime(appointment.end_time)}</p>
         <p><strong>Reason:</strong> {appointment.reason}</p>
         <p><strong>Status:</strong> <span className={`status-badge status-${appointment.status}`}>{appointment.status}</span></p>
       </div>
-      
+
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label>New Date</label>
@@ -218,7 +219,7 @@ const RescheduleAppointment = () => {
               filteredTimeSlots.length > 0 ? (
                 filteredTimeSlots.map(slot => (
                   <option key={slot.id} value={slot.id}>
-                    {slot.start_time.substring(0, 5)} - {slot.end_time.substring(0, 5)}
+                    {formatTime(slot.start_time)} - {formatTime(slot.end_time)}
                   </option>
                 ))
               ) : (
@@ -232,15 +233,15 @@ const RescheduleAppointment = () => {
         </div>
 
         <div className="form-actions">
-          <button 
-            type="button" 
+          <button
+            type="button"
             className="btn btn-secondary"
             onClick={() => navigate('/my-appointments')}
           >
             Cancel
           </button>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="btn btn-primary"
             disabled={loading || !formData.date || !formData.time_slot_id || filteredTimeSlots.length === 0}
           >

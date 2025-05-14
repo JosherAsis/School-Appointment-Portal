@@ -153,6 +153,16 @@ router.post(
         return res.status(400).json({ msg: 'Time slot not available on selected day' });
       }
 
+      // Check if the selected date is a weekend (0 = Sunday, 6 = Saturday)
+      if (dayOfWeek === 0 || dayOfWeek === 6) {
+        return res.status(400).json({ msg: 'Cannot book appointments on weekends (Saturday or Sunday)' });
+      }
+
+      // Check if the time slot starts after 5 PM (17:00:00)
+      if (timeSlots[0].start_time >= '17:00:00') {
+        return res.status(400).json({ msg: 'Cannot book appointments after 5 PM' });
+      }
+
       // Check if the time slot is already booked for the selected date
       const [existingAppointments] = await pool.query(
         'SELECT COUNT(*) as count FROM appointments WHERE date = ? AND time_slot_id = ?',
@@ -333,6 +343,16 @@ router.put(
       const dayOfWeek = selectedDate.getDay(); // 0 = Sunday, 1 = Monday, etc.
       if (dayOfWeek !== timeSlots[0].day_of_week) {
         return res.status(400).json({ msg: 'Time slot not available on selected day' });
+      }
+
+      // Check if the selected date is a weekend (0 = Sunday, 6 = Saturday)
+      if (dayOfWeek === 0 || dayOfWeek === 6) {
+        return res.status(400).json({ msg: 'Cannot book appointments on weekends (Saturday or Sunday)' });
+      }
+
+      // Check if the time slot starts after 5 PM (17:00:00)
+      if (timeSlots[0].start_time >= '17:00:00') {
+        return res.status(400).json({ msg: 'Cannot book appointments after 5 PM' });
       }
 
       // Check if the time slot is already booked for the selected date

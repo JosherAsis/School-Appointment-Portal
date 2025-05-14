@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import NotificationService from '../services/NotificationService';
 import api from '../services/api';
+import { formatTime, getDayOfWeek } from '../utils/timeFormatter';
 
 const BookAppointment = () => {
   const { currentUser } = useContext(AuthContext);
@@ -79,10 +80,7 @@ const BookAppointment = () => {
     }
   }, [formData.date, timeSlots]);
 
-  const getDayName = (dayOfWeek) => {
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    return days[dayOfWeek];
-  };
+  // Use the imported getDayOfWeek and formatTime functions from timeFormatter.js
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -205,7 +203,7 @@ const BookAppointment = () => {
                 filteredTimeSlots.length > 0 ? (
                   filteredTimeSlots.map(slot => (
                     <option key={slot.id} value={slot.id}>
-                      {slot.start_time.substring(0, 5)} - {slot.end_time.substring(0, 5)}
+                      {formatTime(slot.start_time)} - {formatTime(slot.end_time)}
                     </option>
                   ))
                 ) : (
