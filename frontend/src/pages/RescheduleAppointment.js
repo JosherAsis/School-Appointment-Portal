@@ -76,8 +76,29 @@ const RescheduleAppointment = () => {
       console.log('Selected date:', formData.date);
       console.log('Day of week:', dayOfWeek);
 
+      // Check if the selected date is today
+      const today = new Date();
+      const isToday = selectedDate.toDateString() === today.toDateString();
+
       // Filter time slots for this day of week
-      const slotsForDay = timeSlots.filter(slot => slot.day_of_week === dayOfWeek);
+      let slotsForDay = timeSlots.filter(slot => slot.day_of_week === dayOfWeek);
+
+      // If the selected date is today, filter out time slots that have already passed
+      if (isToday) {
+        const currentHour = today.getHours();
+        const currentMinute = today.getMinutes();
+
+        slotsForDay = slotsForDay.filter(slot => {
+          // Parse the start time (format: HH:MM:SS)
+          const [hours, minutes] = slot.start_time.split(':').map(Number);
+
+          // Check if the time slot has already passed
+          return (hours > currentHour) || (hours === currentHour && minutes > currentMinute);
+        });
+
+        console.log('Current time:', `${currentHour}:${currentMinute}`);
+        console.log('Filtered time slots for today:', slotsForDay);
+      }
 
       console.log('Available time slots for this day:', slotsForDay);
       setFilteredTimeSlots(slotsForDay);

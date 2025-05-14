@@ -141,10 +141,30 @@ router.post(
       // Check if the selected date is in the future
       const selectedDate = new Date(date);
       const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      const todayWithoutTime = new Date(today);
+      todayWithoutTime.setHours(0, 0, 0, 0);
 
-      if (selectedDate < today) {
+      // If the selected date is in the past, reject it
+      if (selectedDate < todayWithoutTime) {
         return res.status(400).json({ msg: 'Cannot book appointments in the past' });
+      }
+
+      // If the selected date is today, check if the time slot has already passed
+      if (selectedDate.toDateString() === today.toDateString()) {
+        // Parse the time slot start time
+        const [hours, minutes] = timeSlots[0].start_time.split(':').map(Number);
+
+        // Create a date object for the appointment time today
+        const appointmentTime = new Date(today);
+        appointmentTime.setHours(hours, minutes, 0, 0);
+
+        console.log('Current time:', today);
+        console.log('Appointment time:', appointmentTime);
+
+        // If the appointment time has already passed, reject it
+        if (appointmentTime <= today) {
+          return res.status(400).json({ msg: 'Cannot book appointments for times that have already passed today' });
+        }
       }
 
       // Check if the day of week matches the time slot
@@ -333,10 +353,30 @@ router.put(
       // Check if the selected date is in the future
       const selectedDate = new Date(date);
       const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      const todayWithoutTime = new Date(today);
+      todayWithoutTime.setHours(0, 0, 0, 0);
 
-      if (selectedDate < today) {
-        return res.status(400).json({ msg: 'Cannot book appointments in the past' });
+      // If the selected date is in the past, reject it
+      if (selectedDate < todayWithoutTime) {
+        return res.status(400).json({ msg: 'Cannot reschedule to dates in the past' });
+      }
+
+      // If the selected date is today, check if the time slot has already passed
+      if (selectedDate.toDateString() === today.toDateString()) {
+        // Parse the time slot start time
+        const [hours, minutes] = timeSlots[0].start_time.split(':').map(Number);
+
+        // Create a date object for the appointment time today
+        const appointmentTime = new Date(today);
+        appointmentTime.setHours(hours, minutes, 0, 0);
+
+        console.log('Reschedule - Current time:', today);
+        console.log('Reschedule - Appointment time:', appointmentTime);
+
+        // If the appointment time has already passed, reject it
+        if (appointmentTime <= today) {
+          return res.status(400).json({ msg: 'Cannot reschedule to times that have already passed today' });
+        }
       }
 
       // Check if the day of week matches the time slot
