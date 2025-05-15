@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+  <!-- Outer green circle -->
+  <circle cx="250" cy="250" r="240" fill="#2e8b57"/>
+  
+  <!-- Text on top curved path -->
+  <path id="topCurve" d="M250,50 A200,200 0 0,1 450,250" fill="none"/>
+  <text font-family="Arial" font-weight="bold" font-size="24" fill="#000">
+    <textPath href="#topCurve" startOffset="5%">PATEROS TECHNOLOGICAL COLLEGE</textPath>
+  </text>
+  
+  <!-- Text on bottom curved path -->
+  <path id="bottomCurve" d="M250,450 A200,200 0 0,1 50,250" fill="none"/>
+  <text font-family="Arial" font-weight="bold" font-size="24" fill="#000">
+    <textPath href="#bottomCurve" startOffset="5%">PATEROS METRO MANILA</textPath>
+  </text>
+  
+  <!-- Yellow gear -->
+  <circle cx="250" cy="250" r="180" fill="#ffde00"/>
+  <path d="M250,70 L270,70 L275,100 L225,100 L230,70 Z" fill="#ffde00"/>
+  <path d="M250,430 L270,430 L275,400 L225,400 L230,430 Z" fill="#ffde00"/>
+  <path d="M70,250 L70,270 L100,275 L100,225 L70,230 Z" fill="#ffde00"/>
+  <path d="M430,250 L430,270 L400,275 L400,225 L430,230 Z" fill="#ffde00"/>
+  <path d="M125,125 L140,140 L165,115 L135,85 L120,100 Z" fill="#ffde00"/>
+  <path d="M375,375 L360,390 L385,415 L415,385 L400,370 Z" fill="#ffde00"/>
+  <path d="M125,375 L140,360 L115,335 L85,365 L100,380 Z" fill="#ffde00"/>
+  <path d="M375,125 L360,140 L385,165 L415,135 L400,120 Z" fill="#ffde00"/>
+  
+  <!-- Inner white circle -->
+  <circle cx="250" cy="250" r="140" fill="white"/>
+  
+  <!-- Laurel leaves left -->
+  <path d="M170,180 C150,200 150,300 170,320" fill="none" stroke="#2e8b57" stroke-width="5"/>
+  <path d="M170,180 C190,200 190,300 170,320" fill="none" stroke="#2e8b57" stroke-width="5"/>
+  <path d="M160,190 C140,210 140,290 160,310" fill="none" stroke="#2e8b57" stroke-width="5"/>
+  <path d="M160,190 C180,210 180,290 160,310" fill="none" stroke="#2e8b57" stroke-width="5"/>
+  <path d="M150,200 C130,220 130,280 150,300" fill="none" stroke="#2e8b57" stroke-width="5"/>
+  <path d="M150,200 C170,220 170,280 150,300" fill="none" stroke="#2e8b57" stroke-width="5"/>
+  
+  <!-- Laurel leaves right -->
+  <path d="M330,180 C350,200 350,300 330,320" fill="none" stroke="#2e8b57" stroke-width="5"/>
+  <path d="M330,180 C310,200 310,300 330,320" fill="none" stroke="#2e8b57" stroke-width="5"/>
+  <path d="M340,190 C360,210 360,290 340,310" fill="none" stroke="#2e8b57" stroke-width="5"/>
+  <path d="M340,190 C320,210 320,290 340,310" fill="none" stroke="#2e8b57" stroke-width="5"/>
+  <path d="M350,200 C370,220 370,280 350,300" fill="none" stroke="#2e8b57" stroke-width="5"/>
+  <path d="M350,200 C330,220 330,280 350,300" fill="none" stroke="#2e8b57" stroke-width="5"/>
+  
+  <!-- Sun rays -->
+  <path d="M250,150 L250,110" stroke="#ffde00" stroke-width="8"/>
+  <path d="M230,152 L215,115" stroke="#ffde00" stroke-width="8"/>
+  <path d="M270,152 L285,115" stroke="#ffde00" stroke-width="8"/>
+  <path d="M215,165 L185,135" stroke="#ffde00" stroke-width="8"/>
+  <path d="M285,165 L315,135" stroke="#ffde00" stroke-width="8"/>
+  
+  <!-- Philippine flag colors -->
+  <path d="M200,250 A50,50 0 0,1 250,200 A50,50 0 0,1 300,250 A50,50 0 0,1 250,300 A50,50 0 0,1 200,250 Z" fill="none"/>
+  <path d="M200,250 A50,50 0 0,1 250,200 L250,250 Z" fill="#0000ff"/>
+  <path d="M250,200 A50,50 0 0,1 300,250 L250,250 Z" fill="#ff0000"/>
+  <path d="M300,250 A50,50 0 0,1 250,300 L250,250 Z" fill="#ff0000"/>
+  <path d="M250,300 A50,50 0 0,1 200,250 L250,250 Z" fill="#0000ff"/>
+  
+  <!-- Eagle/bird silhouette -->
+  <path d="M250,200 C270,190 290,210 250,230 C210,210 230,190 250,200 Z" fill="#000"/>
+  
+  <!-- Year text -->
+  <text x="250" y="330" font-family="Arial" font-size="16" text-anchor="middle" fill="#000">1993</text>
+  
+  <!-- Small dots representing rice/pearls -->
+  <circle cx="230" cy="260" r="5" fill="white"/>
+  <circle cx="240" cy="265" r="5" fill="white"/>
+  <circle cx="250" cy="270" r="5" fill="white"/>
+  <circle cx="260" cy="265" r="5" fill="white"/>
+  <circle cx="270" cy="260" r="5" fill="white"/>
+  <circle cx="225" cy="250" r="5" fill="white"/>
+  <circle cx="235" cy="255" r="5" fill="white"/>
+  <circle cx="245" cy="260" r="5" fill="white"/>
+  <circle cx="255" cy="255" r="5" fill="white"/>
+  <circle cx="265" cy="250" r="5" fill="white"/>
+</svg>

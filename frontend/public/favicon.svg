@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+  <!-- Dark background circle -->
+  <circle cx="250" cy="250" r="250" fill="#1a1a1a"/>
+  
+  <!-- Green circle outline -->
+  <circle cx="250" cy="250" r="220" fill="none" stroke="#2e8b57" stroke-width="10"/>
+  
+  <!-- Duck body -->
+  <ellipse cx="250" cy="270" rx="120" ry="140" fill="#2e8b57"/>
+  
+  <!-- Duck head -->
+  <circle cx="250" cy="170" r="80" fill="#2e8b57"/>
+  
+  <!-- Duck eyes -->
+  <circle cx="220" cy="150" r="15" fill="#4a0d00"/>
+  <circle cx="280" cy="150" r="15" fill="#4a0d00"/>
+  
+  <!-- Eye highlights -->
+  <circle cx="225" cy="145" r="5" fill="white"/>
+  <circle cx="285" cy="145" r="5" fill="white"/>
+  
+  <!-- Duck bill -->
+  <path d="M250 170 L300 190 L250 210 L200 190 Z" fill="#ffa500"/>
+  
+  <!-- Duck feet -->
+  <path d="M200 380 L170 410 L210 410 Z" fill="#ffa500"/>
+  <path d="M300 380 L270 410 L330 410 Z" fill="#ffa500"/>
+  
+  <!-- Highlights on body -->
+  <path d="M200 220 C220 200, 280 200, 300 220" fill="none" stroke="#3cb371" stroke-width="5"/>
+  <path d="M190 250 C210 230, 290 230, 310 250" fill="none" stroke="#3cb371" stroke-width="5"/>
+  <path d="M180 280 C200 260, 300 260, 320 280" fill="none" stroke="#3cb371" stroke-width="5"/>
+  <path d="M190 310 C210 290, 290 290, 310 310" fill="none" stroke="#3cb371" stroke-width="5"/>
+  
+  <!-- Wing highlights -->
+  <path d="M170 270 C150 250, 140 230, 150 210" fill="none" stroke="#3cb371" stroke-width="8"/>
+  <path d="M330 270 C350 250, 360 230, 350 210" fill="none" stroke="#3cb371" stroke-width="8"/>
+</svg>

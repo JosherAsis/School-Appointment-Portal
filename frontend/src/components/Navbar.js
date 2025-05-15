@@ -1,6 +1,8 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import '../styles/Navbar.css';
+import '../styles/Logo.css';
 
 const Navbar = () => {
   const { currentUser, logout } = useContext(AuthContext);
@@ -25,7 +27,10 @@ const Navbar = () => {
     <nav className="navbar">
       <div className="navbar-container">
         <Link to="/" className="navbar-logo" onClick={closeMenu}>
-          School Appointment Portal
+          <div className="logo-container">
+            <img src="/images/duckster-logo.png" alt="Duck Logo" className="logo-image" />
+            <span>School Appointment Portal</span>
+          </div>
         </Link>
         <div className="menu-icon" onClick={toggleMenu}>
           <i className={menuOpen ? 'fas fa-times' : 'fas fa-bars'}>
