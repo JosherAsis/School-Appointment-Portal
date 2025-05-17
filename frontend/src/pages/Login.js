@@ -47,10 +47,10 @@ const Login = () => {
       {/* Left side with background image */}
       <div className="login-left">
         <div className="dual-logo-container">
-          <img src="/images/duckster-logo.png" alt="Duck Logo" className="logo-image" />
-          <img src="/images/ptc-logo.png" alt="College Logo" className="logo-image" />
+          <img src="/images/ducksters-logo.png" alt="Duck Logo" className="logo-image-large" />
+          <div className="brand-logo">School Appointment Portal</div>
+          <img src="/images/ptc-logo.png" alt="College Logo" className="logo-image-large" />
         </div>
-        <div className="brand-logo">School Appointment Portal</div>
         <div className="nav-links">
           <Link to="/" className="nav-link">HOME</Link>
           <Link to="/about" className="nav-link">ABOUT US</Link>

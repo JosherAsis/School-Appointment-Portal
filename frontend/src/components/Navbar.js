@@ -28,7 +28,7 @@ const Navbar = () => {
       <div className="navbar-container">
         <Link to="/" className="navbar-logo" onClick={closeMenu}>
           <div className="logo-container">
-            <img src="/images/duckster-logo.png" alt="Duck Logo" className="logo-image" />
+            <img src="/images/ducksters-logo.png" alt="Duck Logo" className="logo-image" />
             <span>School Appointment Portal</span>
           </div>
         </Link>

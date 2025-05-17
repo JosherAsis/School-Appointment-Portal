@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import '../styles/Home.css';
@@ -6,18 +6,34 @@ import '../styles/Logo.css';
 
 const Home = () => {
   const { currentUser } = useContext(AuthContext);
+  const [typedText, setTypedText] = useState('');
+  const fullText = 'Streamline your school appointments with our easy-to-use platform. Book, manage, and track appointments with school administrators in one place.';
+
+  useEffect(() => {
+    let currentIndex = 0;
+    const typingInterval = setInterval(() => {
+      if (currentIndex <= fullText.length) {
+        setTypedText(fullText.slice(0, currentIndex));
+        currentIndex++;
+      } else {
+        clearInterval(typingInterval);
+      }
+    }, 30);
+
+    return () => clearInterval(typingInterval);
+  }, []);
 
   return (
     <div className="home-container">
       {/* Left side with dark background */}
       <div className="home-left">
         <div className="dual-logo-container">
-          <img src="/images/duckster-logo.png" alt="Duck Logo" className="logo-image" />
-          <img src="/images/ptc-logo.png" alt="College Logo" className="logo-image" />
+          <img src="/images/ducksters-logo.png" alt="Duck Logo" className="logo-image-large" />
+          <img src="/images/ptc-logo.png" alt="College Logo" className="logo-image-large" />
         </div>
         <h1 className="home-title">Welcome to School Appointment Portal</h1>
         <p className="home-subtitle">
-          Streamline your school appointments with our easy-to-use platform. Book, manage, and track appointments with school administrators in one place.
+          {typedText}<span className="typing-cursor"></span>
         </p>
 
         <div className="home-buttons">
@@ -50,6 +66,12 @@ const Home = () => {
               </Link>
             </>
           )}
+        </div>
+
+        {/* Scroll indicator for mobile */}
+        <div className="scroll-indicator">
+          <div className="scroll-arrow"></div>
+          <div className="scroll-text">Scroll to explore</div>
         </div>
       </div>
 
