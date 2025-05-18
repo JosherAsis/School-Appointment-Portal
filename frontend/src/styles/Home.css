@@ -16,6 +16,8 @@
   background-color: white;
   margin-top: 0;
   padding-top: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .home-left {
@@ -81,25 +83,28 @@
 }
 
 .home-subtitle {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 1.4rem;
   margin-bottom: 2.5rem;
   z-index: 1;
   position: relative;
-  max-width: 500px;
-  line-height: 1.8;
+  max-width: 550px;
+  line-height: 1.7;
   letter-spacing: 0.3px;
-  min-height: 4.5rem; /* Ensure consistent height during typing animation */
+  min-height: 5rem; /* Ensure consistent height during typing animation */
+  font-weight: 400;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .typing-cursor {
   display: inline-block;
-  width: 2px;
-  height: 1.2em;
+  width: 3px;
+  height: 1.3em;
   background-color: var(--accent-color);
-  margin-left: 2px;
+  margin-left: 3px;
   vertical-align: middle;
   animation: blink 1s step-end infinite;
+  border-radius: 1px;
 }
 
 @keyframes blink {
@@ -392,7 +397,8 @@
   }
 
   .home-subtitle {
-    font-size: 1rem;
+    font-size: 1.15rem;
+    min-height: 4.5rem;
   }
 
   .home-buttons {

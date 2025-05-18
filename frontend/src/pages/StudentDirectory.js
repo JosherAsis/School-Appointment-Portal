@@ -55,7 +55,7 @@ const StudentDirectory = () => {
     // Apply search filter
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
-      result = result.filter(student => 
+      result = result.filter(student =>
         student.name?.toLowerCase().includes(searchLower) ||
         student.student_id?.toLowerCase().includes(searchLower) ||
         student.email?.toLowerCase().includes(searchLower)
@@ -77,7 +77,7 @@ const StudentDirectory = () => {
       result.sort((a, b) => {
         if (!a[sortConfig.key]) return 1;
         if (!b[sortConfig.key]) return -1;
-        
+
         if (a[sortConfig.key] < b[sortConfig.key]) {
           return sortConfig.direction === 'asc' ? -1 : 1;
         }
@@ -114,7 +114,7 @@ const StudentDirectory = () => {
     setSelectedStudent(student);
     setShowStudentModal(true);
     setLoadingAppointments(true);
-    
+
     try {
       // Fetch student's appointments
       const response = await api.get(`/appointments?student_id=${student.id}`);
@@ -151,24 +151,24 @@ const StudentDirectory = () => {
   return (
     <div className="student-directory">
       <h2>Student Directory</h2>
-      
+
       {error && <div className="alert alert-danger">{error}</div>}
-      
+
       <div className="filters-container">
         <div className="search-group">
-          <input 
-            type="text" 
-            value={searchTerm} 
+          <input
+            type="text"
+            value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder="Search by name, ID, or email"
             className="search-input"
           />
         </div>
-        
+
         <div className="filter-group">
           <label>Department:</label>
-          <select 
-            value={departmentFilter} 
+          <select
+            value={departmentFilter}
             onChange={(e) => setDepartmentFilter(e.target.value)}
           >
             <option value="all">All Departments</option>
@@ -177,11 +177,11 @@ const StudentDirectory = () => {
             ))}
           </select>
         </div>
-        
+
         <div className="filter-group">
           <label>Year Level:</label>
-          <select 
-            value={yearFilter} 
+          <select
+            value={yearFilter}
             onChange={(e) => setYearFilter(e.target.value)}
           >
             <option value="all">All Years</option>
@@ -190,9 +190,9 @@ const StudentDirectory = () => {
             ))}
           </select>
         </div>
-        
-        <button 
-          className="btn btn-secondary"
+
+        <button
+          className="btn btn-warning"
           onClick={() => {
             setSearchTerm('');
             setDepartmentFilter('all');
@@ -202,7 +202,7 @@ const StudentDirectory = () => {
           Clear Filters
         </button>
       </div>
-      
+
       {filteredStudents.length === 0 ? (
         <p>No students found matching the current filters.</p>
       ) : (
@@ -238,7 +238,7 @@ const StudentDirectory = () => {
                     <td>{student.department || 'N/A'}</td>
                     <td>{student.year_level || 'N/A'}</td>
                     <td>
-                      <button 
+                      <button
                         className="btn btn-sm btn-primary"
                         onClick={() => viewStudentDetails(student)}
                       >
@@ -250,17 +250,17 @@ const StudentDirectory = () => {
               </tbody>
             </table>
           </div>
-          
+
           {/* Pagination */}
           <div className="pagination">
-            <button 
+            <button
               onClick={() => paginate(currentPage - 1)}
               disabled={currentPage === 1}
               className="btn btn-sm"
             >
               Previous
             </button>
-            
+
             {Array.from({ length: Math.ceil(filteredStudents.length / itemsPerPage) }).map((_, index) => (
               <button
                 key={index}
@@ -270,8 +270,8 @@ const StudentDirectory = () => {
                 {index + 1}
               </button>
             ))}
-            
-            <button 
+
+            <button
               onClick={() => paginate(currentPage + 1)}
               disabled={currentPage === Math.ceil(filteredStudents.length / itemsPerPage)}
               className="btn btn-sm"
@@ -281,21 +281,21 @@ const StudentDirectory = () => {
           </div>
         </>
       )}
-      
+
       {/* Student Details Modal */}
       {showStudentModal && selectedStudent && (
         <div className="modal-overlay">
           <div className="modal modal-large">
             <div className="modal-header">
               <h3>Student Details</h3>
-              <button 
+              <button
                 className="close-btn"
                 onClick={() => setShowStudentModal(false)}
               >
                 &times;
               </button>
             </div>
-            
+
             <div className="modal-body">
               <div className="student-details">
                 <div className="detail-group">
@@ -306,7 +306,7 @@ const StudentDirectory = () => {
                   <p><strong>Department:</strong> {selectedStudent.department || 'Not specified'}</p>
                   <p><strong>Year Level:</strong> {selectedStudent.year_level || 'Not specified'}</p>
                 </div>
-                
+
                 <div className="detail-group">
                   <h4>Appointment History</h4>
                   {loadingAppointments ? (
@@ -330,8 +330,8 @@ const StudentDirectory = () => {
                           {appointment.admin_notes && (
                             <p><strong>Admin Notes:</strong> {appointment.admin_notes}</p>
                           )}
-                          <Link 
-                            to={`/appointment/${appointment.id}`} 
+                          <Link
+                            to={`/appointment/${appointment.id}`}
                             className="btn btn-sm btn-secondary"
                           >
                             View Details
@@ -343,9 +343,9 @@ const StudentDirectory = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="modal-footer">
-              <button 
+              <button
                 className="btn btn-secondary"
                 onClick={() => setShowStudentModal(false)}
               >

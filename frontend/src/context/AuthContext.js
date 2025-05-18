@@ -37,24 +37,29 @@ export const AuthProvider = ({ children }) => {
 
       if (token && userData) {
         try {
-          // First set the user from localStorage for immediate UI response
+          // Set the user from localStorage for immediate UI response
           const parsedUser = JSON.parse(userData);
           setCurrentUser(parsedUser);
+          setLoading(false);
 
-          // Then fetch the latest user data from the server
-          const freshUserData = await fetchUserData();
-          if (freshUserData) {
-            setCurrentUser(freshUserData);
-          }
+          // Fetch fresh data in the background without blocking the UI
+          fetchUserData().then(freshUserData => {
+            if (freshUserData) {
+              setCurrentUser(freshUserData);
+            }
+          }).catch(e => {
+            console.error('Background user data fetch failed:', e);
+          });
         } catch (e) {
           // If JSON parsing fails, clear localStorage
           localStorage.removeItem('token');
           localStorage.removeItem('user');
           console.error('Failed to parse user data from localStorage:', e);
+          setLoading(false);
         }
+      } else {
+        setLoading(false);
       }
-
-      setLoading(false);
     };
 
     initializeUser();
@@ -96,20 +101,19 @@ export const AuthProvider = ({ children }) => {
       // Set the user from the login response
       setCurrentUser(user);
 
-      // Fetch complete user data including student information
-      try {
-        const completeUserData = await fetchUserData();
+      // Set loading to false immediately to allow UI to render
+      setLoading(false);
+
+      // Fetch complete user data in the background without blocking the UI
+      fetchUserData().then(completeUserData => {
         if (completeUserData) {
           setCurrentUser(completeUserData);
           console.log('Complete user data fetched after login:', completeUserData);
-          return completeUserData;
         }
-      } catch (fetchError) {
+      }).catch(fetchError => {
         console.error('Error fetching complete user data after login:', fetchError);
-        // Continue with the basic user data if fetching complete data fails
-      }
+      });
 
-      setLoading(false);
       return user;
     } catch (err) {
       console.error('Login error:', err);
@@ -137,21 +141,19 @@ export const AuthProvider = ({ children }) => {
       // Set the user from the registration response
       setCurrentUser(user);
 
-      // Fetch complete user data including student information
-      try {
-        const completeUserData = await fetchUserData();
+      // Set loading to false immediately to allow UI to render
+      setLoading(false);
+
+      // Fetch complete user data in the background without blocking the UI
+      fetchUserData().then(completeUserData => {
         if (completeUserData) {
           setCurrentUser(completeUserData);
           console.log('Complete user data fetched after registration:', completeUserData);
-          setLoading(false);
-          return completeUserData;
         }
-      } catch (fetchError) {
+      }).catch(fetchError => {
         console.error('Error fetching complete user data after registration:', fetchError);
-        // Continue with the basic user data if fetching complete data fails
-      }
+      });
 
-      setLoading(false);
       return user;
     } catch (err) {
       setLoading(false);
@@ -168,13 +170,28 @@ export const AuthProvider = ({ children }) => {
     setCurrentUser(null);
   };
 
+  // Function to refresh user data
+  const refreshUserData = async () => {
+    try {
+      const freshUserData = await fetchUserData();
+      if (freshUserData) {
+        setCurrentUser(freshUserData);
+      }
+      return freshUserData;
+    } catch (error) {
+      console.error('Error refreshing user data:', error);
+      return null;
+    }
+  };
+
   const value = {
     currentUser,
     loading,
     error,
     login,
     register,
-    logout
+    logout,
+    refreshUserData
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

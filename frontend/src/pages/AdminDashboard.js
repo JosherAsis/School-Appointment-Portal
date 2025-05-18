@@ -4,6 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import AdminAnalytics from '../components/AdminAnalytics';
 import api from '../services/api';
 import { formatTime } from '../utils/timeFormatter';
+import '../styles/AdminDashboard.css';
 
 const AdminDashboard = () => {
   const { currentUser } = useContext(AuthContext);
@@ -58,9 +59,6 @@ const AdminDashboard = () => {
   return (
     <div className="admin-dashboard">
       <h2>Admin Dashboard</h2>
-      <div className="welcome-message">
-        <h3>Welcome, {currentUser?.name || 'Admin'}!</h3>
-      </div>
 
       <div className="stats-container">
         <div className="stat-card">

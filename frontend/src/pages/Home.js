@@ -29,7 +29,9 @@ const Home = () => {
       <div className="home-left">
         <div className="dual-logo-container">
           <img src="/images/ducksters-logo.png" alt="Duck Logo" className="logo-image-large" />
-          <img src="/images/ptc-logo.png" alt="College Logo" className="logo-image-large" />
+          <a href="https://www.paterostechnologicalcollege.edu.ph/" target="_blank" rel="noopener noreferrer">
+            <img src="/images/ptc-logo.png" alt="College Logo" className="logo-image-large" />
+          </a>
         </div>
         <h1 className="home-title">Welcome to School Appointment Portal</h1>
         <p className="home-subtitle">

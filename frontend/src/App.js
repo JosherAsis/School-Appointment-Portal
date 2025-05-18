@@ -16,6 +16,7 @@ import ManageTimeSlots from './pages/ManageTimeSlots';
 import StudentDirectory from './pages/StudentDirectory';
 import ExportReports from './pages/ExportReports';
 import AppointmentDetails from './pages/AppointmentDetails';
+import Profile from './pages/Profile';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute, AdminRoute, StudentRoute, PublicRoute } from './components/ProtectedRoute';
 import './App.css';
@@ -47,6 +48,7 @@ function App() {
             {/* Student-only routes */}
             <Route element={<StudentRoute />}>
               <Route path="/student-dashboard" element={<StudentDashboard />} />
+              <Route path="/profile" element={<Profile />} />
             </Route>
 
             {/* Admin-only routes */}

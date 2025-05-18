@@ -179,6 +179,76 @@ router.get('/me', auth, async (req, res) => {
   }
 });
 
+// @route   PUT api/auth/update-profile
+// @desc    Update user profile (name, email, student_id)
+// @access  Private
+router.put(
+  '/update-profile',
+  [
+    auth,
+    check('name', 'Name is required').not().isEmpty(),
+    check('email', 'Please include a valid email').isEmail(),
+    check('student_id', 'Student ID is required').not().isEmpty()
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { name, email, student_id } = req.body;
+
+    try {
+      // Check if email is already in use by another user
+      const [existingUsers] = await pool.query(
+        'SELECT * FROM users WHERE email = ? AND id != ?',
+        [email, req.user.id]
+      );
+
+      if (existingUsers.length > 0) {
+        return res.status(400).json({ msg: 'Email is already in use' });
+      }
+
+      // Check if student_id is already in use by another student
+      const [existingStudents] = await pool.query(
+        'SELECT s.* FROM students s JOIN users u ON s.user_id = u.id WHERE s.student_id = ? AND u.id != ?',
+        [student_id, req.user.id]
+      );
+
+      if (existingStudents.length > 0) {
+        return res.status(400).json({ msg: 'Student ID is already in use' });
+      }
+
+      // Start a transaction
+      await pool.query('START TRANSACTION');
+
+      // Update user name and email
+      await pool.query(
+        'UPDATE users SET name = ?, email = ? WHERE id = ?',
+        [name, email, req.user.id]
+      );
+
+      // Update student_id if user is a student
+      if (req.user.role === 'student') {
+        await pool.query(
+          'UPDATE students SET student_id = ? WHERE user_id = ?',
+          [student_id, req.user.id]
+        );
+      }
+
+      // Commit the transaction
+      await pool.query('COMMIT');
+
+      res.json({ msg: 'Profile updated successfully' });
+    } catch (error) {
+      // Rollback in case of error
+      await pool.query('ROLLBACK');
+      console.error(error);
+      res.status(500).json({ message: error.message });
+    }
+  }
+);
+
 // @route   POST api/auth/forgot-password
 // @desc    Send password reset email
 // @access  Public

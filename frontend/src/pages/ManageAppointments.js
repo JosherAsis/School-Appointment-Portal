@@ -60,17 +60,28 @@ const ManageAppointments = () => {
 
     // Apply date filter
     if (filters.date) {
-      const filterDate = new Date(filters.date).toISOString().split('T')[0];
+      // Create a date object from the filter date string
+      const filterDate = new Date(filters.date);
+
+      // Set hours to noon to avoid timezone issues
+      filterDate.setHours(12, 0, 0, 0);
+
       result = result.filter(appointment => {
-        const appointmentDate = new Date(appointment.date).toISOString().split('T')[0];
-        return appointmentDate === filterDate;
+        // Create a date object from the appointment date
+        const appointmentDate = new Date(appointment.date);
+
+        // Set hours to noon to avoid timezone issues
+        appointmentDate.setHours(12, 0, 0, 0);
+
+        // Compare the date strings (day, month, year)
+        return appointmentDate.toDateString() === filterDate.toDateString();
       });
     }
 
     // Apply search filter
     if (filters.searchTerm) {
       const searchLower = filters.searchTerm.toLowerCase();
-      result = result.filter(appointment => 
+      result = result.filter(appointment =>
         appointment.student_name?.toLowerCase().includes(searchLower) ||
         appointment.student_id?.toLowerCase().includes(searchLower) ||
         appointment.reason?.toLowerCase().includes(searchLower)
@@ -141,14 +152,14 @@ const ManageAppointments = () => {
     setUpdateLoading(true);
     try {
       await api.put(`/appointments/${selectedAppointment.id}`, statusUpdateData);
-      
+
       // Update the appointment in the local state
-      const updatedAppointments = appointments.map(app => 
-        app.id === selectedAppointment.id 
-          ? { ...app, ...statusUpdateData } 
+      const updatedAppointments = appointments.map(app =>
+        app.id === selectedAppointment.id
+          ? { ...app, ...statusUpdateData }
           : app
       );
-      
+
       setAppointments(updatedAppointments);
       setShowStatusModal(false);
       setSelectedAppointment(null);
@@ -174,7 +185,10 @@ const ManageAppointments = () => {
 
   // Format date
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString();
+    const date = new Date(dateString);
+    // Set hours to noon to avoid timezone issues
+    date.setHours(12, 0, 0, 0);
+    return date.toLocaleDateString();
   };
 
   if (loading) {
@@ -184,15 +198,15 @@ const ManageAppointments = () => {
   return (
     <div className="manage-appointments">
       <h2>Manage Appointments</h2>
-      
+
       {error && <div className="alert alert-danger">{error}</div>}
-      
+
       <div className="filters-container">
         <div className="filter-group">
           <label>Status:</label>
-          <select 
-            name="status" 
-            value={filters.status} 
+          <select
+            name="status"
+            value={filters.status}
             onChange={handleFilterChange}
           >
             <option value="all">All Statuses</option>
@@ -203,36 +217,36 @@ const ManageAppointments = () => {
             <option value="cancelled">Cancelled</option>
           </select>
         </div>
-        
+
         <div className="filter-group">
           <label>Date:</label>
-          <input 
-            type="date" 
-            name="date" 
-            value={filters.date} 
+          <input
+            type="date"
+            name="date"
+            value={filters.date}
             onChange={handleFilterChange}
           />
         </div>
-        
+
         <div className="filter-group">
           <label>Search:</label>
-          <input 
-            type="text" 
-            name="searchTerm" 
-            value={filters.searchTerm} 
+          <input
+            type="text"
+            name="searchTerm"
+            value={filters.searchTerm}
             onChange={handleFilterChange}
             placeholder="Search by name, ID, or reason"
           />
         </div>
-        
-        <button 
+
+        <button
           className="btn btn-secondary"
           onClick={() => setFilters({ status: 'all', date: '', searchTerm: '' })}
         >
           Clear Filters
         </button>
       </div>
-      
+
       {filteredAppointments.length === 0 ? (
         <p>No appointments found matching the current filters.</p>
       ) : (
@@ -275,7 +289,7 @@ const ManageAppointments = () => {
                         <Link to={`/appointment/${appointment.id}`} className="btn btn-sm">
                           View
                         </Link>
-                        <button 
+                        <button
                           className="btn btn-sm btn-primary"
                           onClick={() => openStatusModal(appointment)}
                         >
@@ -288,17 +302,17 @@ const ManageAppointments = () => {
               </tbody>
             </table>
           </div>
-          
+
           {/* Pagination */}
           <div className="pagination">
-            <button 
+            <button
               onClick={() => paginate(currentPage - 1)}
               disabled={currentPage === 1}
               className="btn btn-sm"
             >
               Previous
             </button>
-            
+
             {Array.from({ length: Math.ceil(filteredAppointments.length / itemsPerPage) }).map((_, index) => (
               <button
                 key={index}
@@ -308,8 +322,8 @@ const ManageAppointments = () => {
                 {index + 1}
               </button>
             ))}
-            
-            <button 
+
+            <button
               onClick={() => paginate(currentPage + 1)}
               disabled={currentPage === Math.ceil(filteredAppointments.length / itemsPerPage)}
               className="btn btn-sm"
@@ -319,21 +333,21 @@ const ManageAppointments = () => {
           </div>
         </>
       )}
-      
+
       {/* Status Update Modal */}
       {showStatusModal && selectedAppointment && (
         <div className="modal-overlay">
           <div className="modal">
             <div className="modal-header">
               <h3>Update Appointment Status</h3>
-              <button 
+              <button
                 className="close-btn"
                 onClick={() => setShowStatusModal(false)}
               >
                 &times;
               </button>
             </div>
-            
+
             <div className="modal-body">
               <p>
                 <strong>Student:</strong> {selectedAppointment.name || selectedAppointment.student_name} ({selectedAppointment.student_id})
@@ -347,13 +361,13 @@ const ManageAppointments = () => {
               <p>
                 <strong>Reason:</strong> {selectedAppointment.reason}
               </p>
-              
+
               <form onSubmit={handleStatusUpdate}>
                 <div className="form-group">
                   <label>Status:</label>
-                  <select 
-                    name="status" 
-                    value={statusUpdateData.status} 
+                  <select
+                    name="status"
+                    value={statusUpdateData.status}
                     onChange={handleStatusFormChange}
                     required
                   >
@@ -363,27 +377,27 @@ const ManageAppointments = () => {
                     <option value="completed">Completed</option>
                   </select>
                 </div>
-                
+
                 <div className="form-group">
                   <label>Admin Notes:</label>
-                  <textarea 
-                    name="admin_notes" 
-                    value={statusUpdateData.admin_notes} 
+                  <textarea
+                    name="admin_notes"
+                    value={statusUpdateData.admin_notes}
                     onChange={handleStatusFormChange}
                     rows="3"
                   ></textarea>
                 </div>
-                
+
                 <div className="modal-footer">
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="btn btn-secondary"
                     onClick={() => setShowStatusModal(false)}
                   >
                     Cancel
                   </button>
-                  <button 
-                    type="submit" 
+                  <button
+                    type="submit"
                     className="btn btn-primary"
                     disabled={updateLoading}
                   >

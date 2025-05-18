@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import '../styles/Navbar.css';
 import '../styles/Logo.css';
@@ -7,7 +7,10 @@ import '../styles/Logo.css';
 const Navbar = () => {
   const { currentUser, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const location = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const isHomePage = location.pathname === '/';
 
   const handleLogout = () => {
     logout();
@@ -23,26 +26,40 @@ const Navbar = () => {
     setMenuOpen(false);
   };
 
+  // Check if we should center the logo (on homepage when not logged in)
+  const shouldCenterLogo = isHomePage && !currentUser;
+
   return (
     <nav className="navbar">
-      <div className="navbar-container">
-        <Link to="/" className="navbar-logo" onClick={closeMenu}>
-          <div className="logo-container">
-            <img src="/images/ducksters-logo.png" alt="Duck Logo" className="logo-image" />
-            <span>School Appointment Portal</span>
-          </div>
-        </Link>
-        <div className="menu-icon" onClick={toggleMenu}>
-          <i className={menuOpen ? 'fas fa-times' : 'fas fa-bars'}>
-            {menuOpen ? '✕' : '☰'}
-          </i>
+      <div className={`navbar-container ${shouldCenterLogo ? 'navbar-centered' : ''}`}>
+        <div className="navbar-logo-container">
+          <Link to="/" className="navbar-logo" onClick={closeMenu}>
+            <div className="logo-container">
+              <img src="/images/ducksters-logo.png" alt="Duck Logo" className="logo-image" />
+              <span>School Appointment Portal</span>
+            </div>
+          </Link>
+          <a href="https://www.paterostechnologicalcollege.edu.ph/" target="_blank" rel="noopener noreferrer" className="ptc-logo-link">
+            <img src="/images/ptc-logo.png" alt="College Logo" className="logo-image" />
+          </a>
         </div>
+        {/* Only show menu icon if there are menu items */}
+        {!shouldCenterLogo && (
+          <div className="menu-icon" onClick={toggleMenu}>
+            <i className={menuOpen ? 'fas fa-times' : 'fas fa-bars'}>
+              {menuOpen ? '✕' : '☰'}
+            </i>
+          </div>
+        )}
         <ul className={menuOpen ? 'nav-menu active' : 'nav-menu'}>
-          <li className="nav-item">
-            <Link to="/" className="nav-link" onClick={closeMenu}>
-              Home
-            </Link>
-          </li>
+          {/* Only show Home link if user is logged in or not on homepage */}
+          {(currentUser || !isHomePage) && (
+            <li className="nav-item">
+              <Link to="/" className="nav-link" onClick={closeMenu}>
+                Home
+              </Link>
+            </li>
+          )}
 
           {currentUser ? (
             // Links for authenticated users
@@ -84,16 +101,20 @@ const Navbar = () => {
           ) : (
             // Links for non-authenticated users
             <>
-              <li className="nav-item">
-                <Link to="/login" className="nav-link" onClick={closeMenu}>
-                  Login
-                </Link>
-              </li>
-              <li className="nav-item">
-                <Link to="/register" className="nav-link" onClick={closeMenu}>
-                  Register
-                </Link>
-              </li>
+              {!isHomePage && (
+                <>
+                  <li className="nav-item">
+                    <Link to="/login" className="nav-link" onClick={closeMenu}>
+                      Login
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link to="/register" className="nav-link" onClick={closeMenu}>
+                      Register
+                    </Link>
+                  </li>
+                </>
+              )}
             </>
           )}
         </ul>

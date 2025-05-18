@@ -132,7 +132,9 @@ const Login = () => {
         <div className="dual-logo-container">
           <img src="/images/ducksters-logo.png" alt="Duck Logo" className="logo-image-large" />
           <div className="brand-logo">School Appointment Portal</div>
-          <img src="/images/ptc-logo.png" alt="College Logo" className="logo-image-large" />
+          <a href="https://www.paterostechnologicalcollege.edu.ph/" target="_blank" rel="noopener noreferrer">
+            <img src="/images/ptc-logo.png" alt="College Logo" className="logo-image-large" />
+          </a>
         </div>
         <div className="nav-links">
           <Link to="/" className="nav-link">HOME</Link>

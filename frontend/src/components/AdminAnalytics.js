@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
+import '../styles/AdminAnalytics.css';
 
 const AdminAnalytics = () => {
   const [analyticsData, setAnalyticsData] = useState({
@@ -47,11 +48,22 @@ const AdminAnalytics = () => {
   }, []);
 
   if (loading) {
-    return <div className="loading">Loading analytics data...</div>;
+    return (
+      <div className="admin-analytics">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Loading analytics data...</p>
+        </div>
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="alert alert-danger">{error}</div>;
+    return (
+      <div className="admin-analytics">
+        <div className="alert alert-danger">{error}</div>
+      </div>
+    );
   }
 
   // Helper function to get the highest value in an object
