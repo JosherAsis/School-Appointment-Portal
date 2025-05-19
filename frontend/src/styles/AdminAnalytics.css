@@ -1,0 +1,285 @@
+/* AdminAnalytics.css - Modern and aesthetically pleasing styles */
+:root {
+  --primary-color: #2e8b57; /* Green from the college logo */
+  --primary-light: #3ca76a;
+  --primary-dark: #1e5d3a;
+  --secondary-color: #f5f5f5;
+  --accent-color: #ffde00; /* Yellow from the college logo */
+  --text-color: #333333;
+  --text-light: #6c757d;
+  --border-radius: 12px;
+  --box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}
+
+.admin-analytics {
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  padding: 2rem;
+  margin-bottom: 2.5rem;
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.admin-analytics h3 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 2rem;
+  text-align: center;
+  position: relative;
+  padding-bottom: 0.8rem;
+}
+
+.admin-analytics h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background-color: var(--primary-color);
+  border-radius: 2px;
+}
+
+.analytics-section {
+  margin-bottom: 2.5rem;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.analytics-section:last-child {
+  margin-bottom: 0;
+}
+
+.analytics-section h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 1.5rem;
+  position: relative;
+  display: inline-block;
+}
+
+.analytics-section h4::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background-color: var(--accent-color);
+  border-radius: 2px;
+}
+
+/* Chart Styles */
+.chart {
+  display: flex;
+  height: 250px;
+  align-items: flex-end;
+  justify-content: space-around;
+  padding: 0 1rem;
+  margin-top: 2rem;
+}
+
+.chart-bar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 80px;
+}
+
+.chart-bar {
+  width: 50px;
+  background-color: var(--primary-color);
+  border-radius: 6px 6px 0 0;
+  position: relative;
+  transition: height 0.8s ease;
+  min-height: 20px;
+  display: flex;
+  justify-content: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.chart-value {
+  position: absolute;
+  top: -30px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.chart-label {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-light);
+  text-transform: capitalize;
+  font-weight: 500;
+}
+
+/* Status-specific colors */
+.status-pending {
+  background-color: var(--accent-color);
+  box-shadow: 0 4px 8px rgba(255, 222, 0, 0.3);
+}
+
+.status-approved {
+  background-color: var(--primary-color);
+  box-shadow: 0 4px 8px rgba(46, 139, 87, 0.3);
+}
+
+.status-rejected {
+  background-color: #dc3545;
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+.status-completed {
+  background-color: #888888;
+  box-shadow: 0 4px 8px rgba(136, 136, 136, 0.3);
+}
+
+.status-cancelled {
+  background-color: #6c757d;
+  box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+}
+
+/* Reason Chart */
+.reason-chart {
+  flex-direction: column;
+  height: auto;
+  gap: 1rem;
+}
+
+.reason-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.reason-label {
+  width: 30%;
+  font-size: 0.95rem;
+  color: var(--text-color);
+  padding-right: 1rem;
+  font-weight: 500;
+}
+
+.reason-bar-container {
+  width: 70%;
+  height: 30px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.reason-bar {
+  height: 100%;
+  background-color: var(--primary-color);
+  border-radius: 6px;
+  transition: width 0.8s ease;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.reason-value {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: white;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+  .chart {
+    height: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-analytics {
+    padding: 1.5rem;
+  }
+
+  .admin-analytics h3 {
+    font-size: 1.4rem;
+  }
+
+  .analytics-section h4 {
+    font-size: 1.1rem;
+  }
+
+  .chart {
+    height: 180px;
+  }
+
+  .chart-bar {
+    width: 40px;
+  }
+
+  .reason-label {
+    width: 40%;
+  }
+
+  .reason-bar-container {
+    width: 60%;
+  }
+}
+
+@media (max-width: 576px) {
+  .admin-analytics {
+    padding: 1.2rem;
+  }
+
+  .admin-analytics h3 {
+    font-size: 1.3rem;
+  }
+
+  .chart {
+    height: 150px;
+  }
+
+  .chart-bar {
+    width: 30px;
+  }
+
+  .chart-value {
+    font-size: 0.8rem;
+  }
+
+  .chart-label {
+    font-size: 0.8rem;
+  }
+
+  .reason-label {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .reason-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .reason-bar-container {
+    width: 100%;
+  }
+}
