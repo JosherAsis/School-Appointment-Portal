@@ -17,6 +17,7 @@ app.use('/api/students', require('./routes/students'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/time-slots', require('./routes/timeSlots'));
 app.use('/api/dashboard', require('./routes/dashboard'));
+app.use('/api/account-deletion', require('./routes/accountDeletion'));
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}/`);

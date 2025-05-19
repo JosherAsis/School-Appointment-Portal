@@ -148,6 +148,12 @@ const AdminDashboard = () => {
         </div>
 
         <div className="action-card">
+          <h4>Account Deletion Requests</h4>
+          <p>Review and process account deletion requests.</p>
+          <Link to="/manage-deletion-requests" className="btn btn-secondary">Manage Requests</Link>
+        </div>
+
+        <div className="action-card">
           <h4>Export Reports</h4>
           <p>Generate and download appointment reports.</p>
           <Link to="/export-reports" className="btn btn-secondary">Export</Link>

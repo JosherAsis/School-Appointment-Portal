@@ -16,6 +16,7 @@ import ManageTimeSlots from './pages/ManageTimeSlots';
 import StudentDirectory from './pages/StudentDirectory';
 import ExportReports from './pages/ExportReports';
 import AppointmentDetails from './pages/AppointmentDetails';
+import ManageDeletionRequests from './pages/ManageDeletionRequests';
 import Profile from './pages/Profile';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute, AdminRoute, StudentRoute, PublicRoute } from './components/ProtectedRoute';
@@ -59,6 +60,7 @@ function App() {
               <Route path="/student-directory" element={<StudentDirectory />} />
               <Route path="/export-reports" element={<ExportReports />} />
               <Route path="/appointment/:appointmentId" element={<AppointmentDetails />} />
+              <Route path="/manage-deletion-requests" element={<ManageDeletionRequests />} />
             </Route>
           </Routes>
         </Layout>
