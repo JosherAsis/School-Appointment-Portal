@@ -18,6 +18,8 @@ import ExportReports from './pages/ExportReports';
 import AppointmentDetails from './pages/AppointmentDetails';
 import ManageDeletionRequests from './pages/ManageDeletionRequests';
 import Profile from './pages/Profile';
+import AboutUs from './pages/AboutUs';
+import Contact from './pages/Contact';
 import { AuthProvider } from './context/AuthContext';
 import { ProtectedRoute, AdminRoute, StudentRoute, PublicRoute } from './components/ProtectedRoute';
 import './App.css';
@@ -30,6 +32,8 @@ function App() {
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<Home />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/contact" element={<Contact />} />
 
             {/* Auth routes - only for non-authenticated users */}
             <Route element={<PublicRoute />}>

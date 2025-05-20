@@ -3,45 +3,67 @@ const router = express.Router();
 const { check, validationResult } = require('express-validator');
 const pool = require('../db');
 const auth = require('../middleware/auth');
+const cacheManager = require('../utils/cacheManager');
+const invalidateCache = require('../middleware/cacheInvalidation');
 const {
   sendAppointmentConfirmation,
   sendStatusUpdate,
   sendAppointmentCancellationEmail
 } = require('../utils/emailService');
 
+// Cache time for appointments (1 minute)
+const APPOINTMENTS_CACHE_TIME = 60 * 1000;
+
 // @route   GET api/appointments
 // @desc    Get all appointments (admin) or user's appointments (student)
 // @access  Private
 router.get('/', auth, async (req, res) => {
   try {
-    let query;
-    let params = [];
+    // Create a cache key based on user role and ID
+    const cacheKey = `appointments_${req.user.role}_${req.user.id}`;
 
-    if (req.user.role === 'admin') {
-      // Admins can see all appointments
-      query = `
-        SELECT a.*, s.student_id, u.name, u.email, ts.start_time, ts.end_time
-        FROM appointments a
-        JOIN students s ON a.student_id = s.id
-        JOIN users u ON s.user_id = u.id
-        JOIN time_slots ts ON a.time_slot_id = ts.id
-        ORDER BY a.date DESC, ts.start_time ASC
-      `;
-    } else {
-      // Students can only see their own appointments
-      query = `
-        SELECT a.*, ts.start_time, ts.end_time
-        FROM appointments a
-        JOIN students s ON a.student_id = s.id
-        JOIN time_slots ts ON a.time_slot_id = ts.id
-        WHERE s.user_id = ?
-        ORDER BY a.date DESC, ts.start_time ASC
-      `;
-      params = [req.user.id];
-    }
+    // Use cached query
+    const appointments = await cacheManager.cachedQuery(
+      async () => {
+        let query;
+        let params = [];
 
-    const [rows] = await pool.query(query, params);
-    res.json(rows);
+        if (req.user.role === 'admin') {
+          // Admins can see all appointments - optimize query to select only needed fields
+          query = `
+            SELECT
+              a.id, a.date, a.status, a.reason, a.admin_notes, a.created_at, a.cancelled_at,
+              s.student_id, u.name, u.email,
+              ts.start_time, ts.end_time
+            FROM appointments a
+            JOIN students s ON a.student_id = s.id
+            JOIN users u ON s.user_id = u.id
+            JOIN time_slots ts ON a.time_slot_id = ts.id
+            ORDER BY a.date DESC, ts.start_time ASC
+          `;
+        } else {
+          // Students can only see their own appointments
+          query = `
+            SELECT
+              a.id, a.date, a.status, a.reason, a.admin_notes, a.created_at, a.cancelled_at,
+              ts.start_time, ts.end_time
+            FROM appointments a
+            JOIN students s ON a.student_id = s.id
+            JOIN time_slots ts ON a.time_slot_id = ts.id
+            WHERE s.user_id = ?
+            ORDER BY a.date DESC, ts.start_time ASC
+          `;
+          params = [req.user.id];
+        }
+
+        const [rows] = await pool.query(query, params);
+        return rows;
+      },
+      cacheKey,
+      APPOINTMENTS_CACHE_TIME
+    );
+
+    res.json(appointments);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: error.message });
@@ -100,7 +122,9 @@ router.post(
     auth,
     check('date', 'Date is required').not().isEmpty(),
     check('time_slot_id', 'Time slot is required').isInt(),
-    check('reason', 'Reason is required').not().isEmpty()
+    check('reason', 'Reason is required').not().isEmpty(),
+    // Add cache invalidation middleware
+    invalidateCache(['appointments', 'dashboard'])
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -157,9 +181,6 @@ router.post(
         // Create a date object for the appointment time today
         const appointmentTime = new Date(today);
         appointmentTime.setHours(hours, minutes, 0, 0);
-
-        console.log('Current time:', today);
-        console.log('Appointment time:', appointmentTime);
 
         // If the appointment time has already passed, reject it
         if (appointmentTime <= today) {
@@ -238,6 +259,8 @@ router.put(
   [
     auth,
     check('status', 'Status is required').isIn(['pending', 'approved', 'rejected', 'completed']),
+    // Add cache invalidation middleware
+    invalidateCache(['appointments', 'dashboard', 'analytics'])
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -302,6 +325,8 @@ router.put(
     auth,
     check('date', 'Date is required').not().isEmpty(),
     check('time_slot_id', 'Time slot is required').isInt(),
+    // Add cache invalidation middleware
+    invalidateCache(['appointments', 'dashboard'])
   ],
   async (req, res) => {
     const errors = validationResult(req);
@@ -329,9 +354,6 @@ router.put(
 
       // Check if the user is authorized to reschedule this appointment
       if (req.user.role !== 'admin' && parseInt(appointment.user_id) !== parseInt(req.user.id)) {
-        console.log('Authorization check failed:');
-        console.log('User ID from token:', req.user.id, 'Type:', typeof req.user.id);
-        console.log('User ID from appointment:', appointment.user_id, 'Type:', typeof appointment.user_id);
         return res.status(403).json({ msg: 'Not authorized to reschedule this appointment' });
       }
 
@@ -370,9 +392,6 @@ router.put(
         const appointmentTime = new Date(today);
         appointmentTime.setHours(hours, minutes, 0, 0);
 
-        console.log('Reschedule - Current time:', today);
-        console.log('Reschedule - Appointment time:', appointmentTime);
-
         // If the appointment time has already passed, reject it
         if (appointmentTime <= today) {
           return res.status(400).json({ msg: 'Cannot reschedule to times that have already passed today' });
@@ -406,20 +425,11 @@ router.put(
       }
 
       // Update the appointment with the new date and time slot
-      try {
-        // First try with updated_at column
-        await pool.query(
-          'UPDATE appointments SET date = ?, time_slot_id = ?, updated_at = NOW() WHERE id = ?',
-          [date, time_slot_id, req.params.id]
-        );
-      } catch (updateError) {
-        console.error('Error updating with updated_at column:', updateError);
-        // If that fails, try without the updated_at column
-        await pool.query(
-          'UPDATE appointments SET date = ?, time_slot_id = ? WHERE id = ?',
-          [date, time_slot_id, req.params.id]
-        );
-      }
+      // Use a query that works whether updated_at column exists or not
+      await pool.query(
+        'UPDATE appointments SET date = ?, time_slot_id = ? WHERE id = ?',
+        [date, time_slot_id, req.params.id]
+      );
 
       res.json({
         msg: 'Appointment rescheduled successfully',
@@ -431,10 +441,7 @@ router.put(
         }
       });
     } catch (error) {
-      console.error('Error in reschedule endpoint:', error);
-      console.error('Request body:', req.body);
-      console.error('Request params:', req.params);
-      console.error('User:', req.user);
+      console.error('Error in reschedule endpoint:', error.message);
       res.status(500).json({ message: error.message });
     }
   }
@@ -443,7 +450,7 @@ router.put(
 // @route   DELETE api/appointments/:id
 // @desc    Cancel an appointment
 // @access  Private
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', [auth, invalidateCache(['appointments', 'dashboard', 'analytics'])], async (req, res) => {
   try {
     // First, get the appointment details for the email notification
     const [appointments] = await pool.query(
@@ -463,11 +470,6 @@ router.delete('/:id', auth, async (req, res) => {
     const appointment = appointments[0];
 
     // Check if the user is authorized to cancel this appointment
-    // Add debug logging to help diagnose the issue
-    console.log('Authorization check for cancellation:');
-    console.log('User ID from token:', req.user.id, 'Type:', typeof req.user.id);
-    console.log('User ID from appointment:', appointment.user_id, 'Type:', typeof appointment.user_id);
-
     // Convert both IDs to numbers for proper comparison
     if (req.user.role !== 'admin' && parseInt(appointment.user_id) !== parseInt(req.user.id)) {
       return res.status(403).json({ msg: 'Not authorized to cancel this appointment' });

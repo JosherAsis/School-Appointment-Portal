@@ -77,7 +77,6 @@ router.post(
             email: email,
             role: 'student'
           };
-          console.log('Sending registration response with token and user data:', { token, user: userData });
           res.json({ token, user: userData });
         }
       );
@@ -141,7 +140,6 @@ router.post(
             email: user.email,
             role: user.role
           };
-          console.log('Sending login response with token and user data:', { token, user: userData });
           res.json({ token, user: userData });
         }
       );

@@ -1,15 +1,31 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import api from '../services/api';
 import '../styles/StudentDashboard.css';
 
 const StudentDashboard = () => {
   const { currentUser } = useContext(AuthContext);
+  const [studentData, setStudentData] = useState(null);
 
   useEffect(() => {
     // Set page title
     document.title = 'Student Dashboard | School Appointment Portal';
-  }, []);
+
+    // Fetch student data
+    const fetchStudentData = async () => {
+      try {
+        const response = await api.get('/students');
+        setStudentData(response.data);
+      } catch (error) {
+        console.error('Error fetching student data:', error);
+      }
+    };
+
+    if (currentUser) {
+      fetchStudentData();
+    }
+  }, [currentUser]);
 
   return (
     <div className="dashboard">
@@ -23,7 +39,7 @@ const StudentDashboard = () => {
         </div>
         <div className="welcome-text">
           <h3>Welcome, {currentUser?.name || 'Student'}!</h3>
-          {currentUser?.student_id && <p>Student ID: {currentUser.student_id}</p>}
+          {studentData?.student_id && <p>Student ID: {studentData.student_id}</p>}
         </div>
       </div>
 

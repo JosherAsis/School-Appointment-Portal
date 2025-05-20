@@ -60,42 +60,6 @@ router.post(
   }
 );
 
-// @route   POST api/notifications/test
-// @desc    Test email service
-// @access  Private (admin only)
-router.post('/test', auth, async (req, res) => {
-  // Only admins can test the email service
-  if (req.user.role !== 'admin') {
-    return res.status(403).json({ msg: 'Not authorized' });
-  }
 
-  const { email } = req.body;
-
-  if (!email) {
-    return res.status(400).json({ msg: 'Email address is required' });
-  }
-
-  try {
-    const testMailOptions = {
-      from: process.env.EMAIL_FROM,
-      to: email,
-      subject: 'Email Service Test',
-      html: `
-        <h1>Email Service Test</h1>
-        <p>This is a test email from the School Appointment Portal.</p>
-        <p>If you received this email, the email service is working correctly.</p>
-        <p>Time sent: ${new Date().toLocaleString()}</p>
-      `
-    };
-
-    const transporter = require('../utils/emailService').transporter;
-    await transporter.sendMail(testMailOptions);
-
-    res.json({ msg: 'Test email sent successfully' });
-  } catch (error) {
-    console.error('Test email error:', error);
-    res.status(500).json({ message: error.message });
-  }
-});
 
 module.exports = router;

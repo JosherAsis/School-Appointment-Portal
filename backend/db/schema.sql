@@ -43,3 +43,17 @@ CREATE TABLE appointments (
   FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
   FOREIGN KEY (time_slot_id) REFERENCES time_slots(id)
 );
+
+-- Add deletion_requests table
+CREATE TABLE IF NOT EXISTS deletion_requests (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  reason TEXT NOT NULL,
+  status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+  request_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  processed_date DATETIME,
+  processed_by INT,
+  admin_notes TEXT,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (processed_by) REFERENCES users(id) ON DELETE SET NULL
+);

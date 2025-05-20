@@ -130,7 +130,9 @@ const Login = () => {
       {/* Left side with background image */}
       <div className="login-left">
         <div className="dual-logo-container">
-          <img src="/images/ducksters-logo.png" alt="Duck Logo" className="logo-image-large" />
+          <Link to="/about" className="duck-logo-link">
+            <img src="/images/ducksters-logo.png" alt="Duck Logo" className="logo-image-large" />
+          </Link>
           <div className="brand-logo">School Appointment Portal</div>
           <a href="https://www.paterostechnologicalcollege.edu.ph/" target="_blank" rel="noopener noreferrer">
             <img src="/images/ptc-logo.png" alt="College Logo" className="logo-image-large" />
@@ -140,7 +142,6 @@ const Login = () => {
           <Link to="/" className="nav-link">HOME</Link>
           <Link to="/about" className="nav-link">ABOUT US</Link>
           <Link to="/contact" className="nav-link">CONTACT</Link>
-          <Link to="/login" className="nav-link">LOG IN</Link>
         </div>
         <div className="welcome-section">
           <div className="welcome-message">Welcome Back!</div>

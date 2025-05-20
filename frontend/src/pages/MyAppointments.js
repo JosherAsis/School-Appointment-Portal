@@ -1,52 +1,45 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import NotificationService from '../services/NotificationService';
 import api from '../services/api';
+import { useDataFetching } from '../hooks/useDataFetching';
+import { AppointmentCard, LoadingSpinner } from '../components/MemoizedComponents';
 
 const MyAppointments = () => {
   const { currentUser } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [appointments, setAppointments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState(null);
   const [modalAction, setModalAction] = useState('');
 
-  useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        // The backend will filter appointments based on the user's token
-        const response = await api.get('/appointments');
-        setAppointments(response.data);
-        setError(null);
-      } catch (error) {
-        console.error('Error fetching appointments:', error);
-        setError('Failed to load appointments. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Use the custom hook for data fetching with caching
+  const {
+    data: appointments = [],
+    loading,
+    error,
+    refetch
+  } = useDataFetching('/appointments', {
+    enabled: !!currentUser,
+    dependencies: [currentUser?.id],
+    cacheTime: 2 * 60 * 1000 // 2 minutes cache
+  });
 
-    if (currentUser) {
-      fetchAppointments();
-    }
-  }, [currentUser]);
-
-  const handleCancelAppointment = (id) => {
+  // Memoize handlers to prevent unnecessary re-renders
+  const handleCancelAppointment = useCallback((id) => {
     setSelectedAppointmentId(id);
     setModalAction('cancel');
     setShowConfirmModal(true);
-  };
+  }, []);
 
-  const handleRescheduleAppointment = (id) => {
+  const handleRescheduleAppointment = useCallback((id) => {
     // Navigate to the reschedule page with the appointment ID
     navigate(`/reschedule-appointment/${id}`);
-  };
+  }, [navigate]);
 
-  const confirmCancelAppointment = async () => {
+  // Memoize the cancel confirmation handler
+  const confirmCancelAppointment = useCallback(async () => {
     if (!selectedAppointmentId) return;
 
     setCancelLoading(true);
@@ -58,11 +51,8 @@ const MyAppointments = () => {
         throw new Error('Appointment not found');
       }
 
-      console.log('Cancelling appointment:', selectedAppointmentId);
-
       // Call the backend API to cancel the appointment
-      const response = await api.delete(`/appointments/${selectedAppointmentId}`);
-      console.log('Cancel response:', response.data);
+      await api.delete(`/appointments/${selectedAppointmentId}`);
 
       // Send cancellation email
       try {
@@ -77,14 +67,10 @@ const MyAppointments = () => {
         // Don't fail the whole operation if email fails
       }
 
-      // Update the appointments list - either remove it or update its status
-      setAppointments(appointments.map(app =>
-        app.id === selectedAppointmentId
-          ? { ...app, status: 'cancelled' }
-          : app
-      ));
+      // Refresh the appointments data
+      refetch();
 
-      // Show success message
+      // Show success message (consider using a toast notification instead)
       alert('Appointment cancelled successfully!');
 
       // Close the modal
@@ -97,24 +83,24 @@ const MyAppointments = () => {
 
       if (err.response) {
         errorMessage += err.response.data?.msg || `Server error (${err.response.status})`;
-        console.error('Response data:', err.response.data);
       } else {
         errorMessage += err.message || 'Unknown error';
       }
 
-      setError(errorMessage);
       alert(errorMessage);
     } finally {
       setCancelLoading(false);
     }
-  };
+  }, [selectedAppointmentId, appointments, currentUser, refetch]);
 
-  const closeModal = () => {
+  // Memoize the modal close handler
+  const closeModal = useCallback(() => {
     setShowConfirmModal(false);
     setSelectedAppointmentId(null);
-  };
+  }, []);
 
-  if (loading) return <div className="loading">Loading appointments...</div>;
+  // Show loading spinner while data is being fetched
+  if (loading) return <LoadingSpinner />;
 
   return (
     <div className="my-appointments">
@@ -125,31 +111,12 @@ const MyAppointments = () => {
       ) : (
         <div className="appointments-list">
           {appointments.map((appointment) => (
-            <div key={appointment.id} className="appointment-card">
-              <h3>Appointment on {new Date(appointment.date).toLocaleDateString()}</h3>
-              <p><strong>Time:</strong> {appointment.start_time} - {appointment.end_time}</p>
-              <p><strong>Reason:</strong> {appointment.reason}</p>
-              <p><strong>Status:</strong> <span className={`status-badge status-${appointment.status}`}>{appointment.status}</span></p>
-
-              <div className="appointment-actions">
-                {appointment.status === 'pending' && (
-                  <>
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() => handleCancelAppointment(appointment.id)}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      className="btn btn-secondary btn-sm"
-                      onClick={() => handleRescheduleAppointment(appointment.id)}
-                    >
-                      Reschedule
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
+            <AppointmentCard
+              key={appointment.id}
+              appointment={appointment}
+              onCancel={handleCancelAppointment}
+              onReschedule={handleRescheduleAppointment}
+            />
           ))}
         </div>
       )}

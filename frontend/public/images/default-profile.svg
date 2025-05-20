@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200px" height="200px" viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <title>Default Profile</title>
+    <g id="Profile" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <circle id="Background" fill="#E0E0E0" cx="100" cy="100" r="100"></circle>
+        <g id="Person" transform="translate(50.000000, 40.000000)" fill="#9E9E9E">
+            <circle id="Head" cx="50" cy="30" r="30"></circle>
+            <path d="M0,120 C0,85.81722 22.38576,70 50,70 C77.61424,70 100,85.81722 100,120" id="Body"></path>
+        </g>
+    </g>
+</svg>

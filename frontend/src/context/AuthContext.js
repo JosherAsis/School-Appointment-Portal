@@ -15,7 +15,6 @@ export const AuthProvider = ({ children }) => {
       if (!token) return null;
 
       const response = await api.get('/auth/me');
-      console.log('Fetched user data from server:', response.data);
 
       // Update localStorage with the latest user data
       localStorage.setItem('user', JSON.stringify(response.data));
@@ -70,24 +69,20 @@ export const AuthProvider = ({ children }) => {
       setError(null);
       setLoading(true);
 
-      console.log('Attempting login with email:', email);
       const response = await api.post('/auth/login', {
         email,
         password
       });
 
-      console.log('Login response:', response.data);
       const { token, user } = response.data;
 
       if (!token) {
-        console.error('No token received in login response');
         setLoading(false);
         setError('Authentication failed: No token received');
         throw new Error('No token received');
       }
 
       if (!user) {
-        console.error('No user data received in login response');
         setLoading(false);
         setError('Authentication failed: No user data received');
         throw new Error('No user data received');
@@ -96,7 +91,6 @@ export const AuthProvider = ({ children }) => {
       // Save to localStorage
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
-      console.log('User data saved to localStorage:', user);
 
       // Set the user from the login response
       setCurrentUser(user);
@@ -104,23 +98,11 @@ export const AuthProvider = ({ children }) => {
       // Set loading to false immediately to allow UI to render
       setLoading(false);
 
-      // Fetch complete user data in the background without blocking the UI
-      fetchUserData().then(completeUserData => {
-        if (completeUserData) {
-          setCurrentUser(completeUserData);
-          console.log('Complete user data fetched after login:', completeUserData);
-        }
-      }).catch(fetchError => {
-        console.error('Error fetching complete user data after login:', fetchError);
-      });
-
       return user;
     } catch (err) {
-      console.error('Login error:', err);
       setLoading(false);
       const errorMessage = err.response?.data?.msg || 'Login failed. Please check your credentials.';
       setError(errorMessage);
-      console.error('Login error message:', errorMessage);
       throw err;
     }
   };
@@ -143,16 +125,6 @@ export const AuthProvider = ({ children }) => {
 
       // Set loading to false immediately to allow UI to render
       setLoading(false);
-
-      // Fetch complete user data in the background without blocking the UI
-      fetchUserData().then(completeUserData => {
-        if (completeUserData) {
-          setCurrentUser(completeUserData);
-          console.log('Complete user data fetched after registration:', completeUserData);
-        }
-      }).catch(fetchError => {
-        console.error('Error fetching complete user data after registration:', fetchError);
-      });
 
       return user;
     } catch (err) {

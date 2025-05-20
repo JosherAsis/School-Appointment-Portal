@@ -28,7 +28,9 @@ const Home = () => {
       {/* Left side with dark background */}
       <div className="home-left">
         <div className="dual-logo-container">
-          <img src="/images/ducksters-logo.png" alt="Duck Logo" className="logo-image-large" />
+          <Link to="/about" className="duck-logo-link">
+            <img src="/images/ducksters-logo.png" alt="Duck Logo" className="logo-image-large" />
+          </Link>
           <a href="https://www.paterostechnologicalcollege.edu.ph/" target="_blank" rel="noopener noreferrer">
             <img src="/images/ptc-logo.png" alt="College Logo" className="logo-image-large" />
           </a>

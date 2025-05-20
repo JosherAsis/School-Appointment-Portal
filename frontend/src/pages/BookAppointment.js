@@ -18,11 +18,27 @@ const BookAppointment = () => {
   const [loading, setLoading] = useState(false);
   const [loadingTimeSlots, setLoadingTimeSlots] = useState(true);
   const [error, setError] = useState('');
+  const [studentData, setStudentData] = useState(null);
   const navigate = useNavigate();
 
   // Debug: Log the current user object structure
   useEffect(() => {
     console.log('Current user object in BookAppointment:', currentUser);
+
+    // Fetch student data
+    const fetchStudentData = async () => {
+      try {
+        const response = await api.get('/students');
+        setStudentData(response.data);
+        console.log('Fetched student data:', response.data);
+      } catch (error) {
+        console.error('Error fetching student data:', error);
+      }
+    };
+
+    if (currentUser) {
+      fetchStudentData();
+    }
   }, [currentUser]);
 
   useEffect(() => {
@@ -126,11 +142,11 @@ const BookAppointment = () => {
       const appointmentData = {
         ...formData,
         // The backend expects the student ID from the database (the student record ID, not the student_id string)
-        student_id: currentUser.student?.id,
+        student_id: studentData?.id || currentUser.student?.id,
         email: currentUser.email,
         name: currentUser.name,
         // Include the display student_id for reference
-        display_student_id: currentUser.student?.student_id
+        display_student_id: studentData?.student_id || currentUser.student?.student_id
       };
 
       console.log('Current user:', currentUser);
@@ -207,7 +223,7 @@ const BookAppointment = () => {
                   Student ID
                 </label>
                 <div className="student-id-display">
-                  {currentUser?.student?.student_id || 'N/A'}
+                  {studentData?.student_id || currentUser?.student?.student_id || 'N/A'}
                 </div>
                 <small>Your Student ID</small>
               </div>
