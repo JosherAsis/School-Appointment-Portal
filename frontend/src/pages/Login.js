@@ -28,6 +28,13 @@ const Login = () => {
     }
   }, []);
 
+  // Watch for AuthContext errors and update local form error
+  useEffect(() => {
+    if (error) {
+      setFormError(error);
+    }
+  }, [error]);
+
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
@@ -40,6 +47,11 @@ const Login = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+
+    // Clear form error when user starts typing
+    if (formError) {
+      setFormError('');
+    }
 
     // Validate on change
     if (name === 'email') {
@@ -77,7 +89,6 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setFormError('');
 
     // Final validation before submission
     const isEmailValid = validateEmail(formData.email);
@@ -95,8 +106,12 @@ const Login = () => {
     });
 
     if (!isEmailValid || !isPasswordValid) {
+      setFormError('Please fix the validation errors above.');
       return;
     }
+
+    // Clear any previous errors before attempting login
+    setFormError('');
 
     try {
       const user = await login(formData.email, formData.password);
@@ -121,7 +136,9 @@ const Login = () => {
       }
     } catch (err) {
       console.error('Login error:', err);
-      setFormError(error || 'Login failed. Please try again.');
+      // Get the error message from the response, AuthContext error, or use a default message
+      const errorMessage = err.response?.data?.msg || 'Invalid credentials. Please check your email and password and try again.';
+      setFormError(errorMessage);
     }
   };
 
